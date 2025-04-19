@@ -9,7 +9,275 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      fixed_deposits: {
+        Row: {
+          bank_name: string | null
+          created_at: string | null
+          id: string
+          interest_rate: number
+          maturity_date: string
+          name: string
+          notes: string | null
+          principal_amount: number
+          start_date: string
+          user_id: string | null
+        }
+        Insert: {
+          bank_name?: string | null
+          created_at?: string | null
+          id?: string
+          interest_rate: number
+          maturity_date: string
+          name: string
+          notes?: string | null
+          principal_amount: number
+          start_date: string
+          user_id?: string | null
+        }
+        Update: {
+          bank_name?: string | null
+          created_at?: string | null
+          id?: string
+          interest_rate?: number
+          maturity_date?: string
+          name?: string
+          notes?: string | null
+          principal_amount?: number
+          start_date?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      insurance: {
+        Row: {
+          created_at: string | null
+          expiry_date: string | null
+          id: string
+          name: string
+          notes: string | null
+          policy_number: string | null
+          premium_amount: number | null
+          premium_frequency: string | null
+          provider: string
+          start_date: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          expiry_date?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          policy_number?: string | null
+          premium_amount?: number | null
+          premium_frequency?: string | null
+          provider: string
+          start_date: string
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          expiry_date?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          policy_number?: string | null
+          premium_amount?: number | null
+          premium_frequency?: string | null
+          provider?: string
+          start_date?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      insurance_documents: {
+        Row: {
+          file_name: string
+          file_path: string
+          file_type: string
+          id: string
+          insurance_id: string | null
+          uploaded_at: string | null
+        }
+        Insert: {
+          file_name: string
+          file_path: string
+          file_type: string
+          id?: string
+          insurance_id?: string | null
+          uploaded_at?: string | null
+        }
+        Update: {
+          file_name?: string
+          file_path?: string
+          file_type?: string
+          id?: string
+          insurance_id?: string | null
+          uploaded_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "insurance_documents_insurance_id_fkey"
+            columns: ["insurance_id"]
+            isOneToOne: false
+            referencedRelation: "insurance"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notes: {
+        Row: {
+          category: string | null
+          content: string | null
+          created_at: string | null
+          id: string
+          title: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          title: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      precious_metals: {
+        Row: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          purchase_date: string
+          purchase_price_per_unit: number
+          quantity: number
+          type: string
+          unit: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          purchase_date: string
+          purchase_price_per_unit: number
+          quantity: number
+          type: string
+          unit: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          purchase_date?: string
+          purchase_price_per_unit?: number
+          quantity?: number
+          type?: string
+          unit?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      provident_funds: {
+        Row: {
+          created_at: string | null
+          current_balance: number
+          id: string
+          interest_rate: number
+          name: string
+          notes: string | null
+          start_date: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_balance: number
+          id?: string
+          interest_rate: number
+          name: string
+          notes?: string | null
+          start_date: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_balance?: number
+          id?: string
+          interest_rate?: number
+          name?: string
+          notes?: string | null
+          start_date?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      reminders: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_completed: boolean | null
+          reminder_date: string
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_completed?: boolean | null
+          reminder_date: string
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_completed?: boolean | null
+          reminder_date?: string
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          currency: string | null
+          last_updated: string | null
+          theme: string | null
+          user_id: string
+        }
+        Insert: {
+          currency?: string | null
+          last_updated?: string | null
+          theme?: string | null
+          user_id: string
+        }
+        Update: {
+          currency?: string | null
+          last_updated?: string | null
+          theme?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
