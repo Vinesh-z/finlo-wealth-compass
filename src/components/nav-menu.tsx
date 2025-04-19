@@ -88,7 +88,7 @@ export function NavMenu() {
         <div className="fixed inset-y-0 left-0 z-40 w-64 bg-sidebar border-r border-border hidden md:block">
           <div className="h-20 flex items-center px-8">
             <Link to="/" className="flex items-center gap-2">
-              <span className="font-bold text-lg">Finlo</span>
+              <span className="font-bold text-lg">Zinfy</span>
             </Link>
           </div>
           <div className="space-y-1 px-4">
