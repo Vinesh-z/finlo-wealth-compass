@@ -79,7 +79,7 @@ export function InsuranceList({ insurances }: InsuranceListProps) {
                     );
                   } else if (days < 90) {
                     expiryStatus = (
-                      <Badge variant="warning">
+                      <Badge variant="secondary">
                         {days} days left
                       </Badge>
                     );

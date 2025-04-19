@@ -45,9 +45,9 @@ export function NoteList({ notes }: NoteListProps) {
       case "expense":
         return "destructive";
       case "income":
-        return "success";
+        return "secondary";
       case "idea":
-        return "warning";
+        return "secondary";
       case "todo":
         return "outline";
       default:
