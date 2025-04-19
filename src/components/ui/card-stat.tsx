@@ -20,13 +20,13 @@ export function CardStat({ title, value, icon, className, trend }: CardStatProps
         {icon && <div className="opacity-70">{icon}</div>}
       </div>
       <div className="flex flex-col">
-        <p className="text-2xl font-bold">{value}</p>
+        <p className="text-2xl font-bold text-foreground">{value}</p>
         {trend && (
           <div className="flex items-center mt-1">
             <span
               className={cn(
                 "text-xs font-medium",
-                trend.isPositive ? "text-income" : "text-expense"
+                trend.isPositive ? "text-income dark:text-income-light" : "text-expense dark:text-expense-light"
               )}
             >
               {trend.isPositive ? "+" : "-"}

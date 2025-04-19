@@ -62,6 +62,32 @@ function Analytics() {
   const savings = calculateSavings(filteredTransactions);
   const savingsRate = totalIncome > 0 ? (savings / totalIncome) * 100 : 0;
 
+  // Find top spending category
+  const getTopSpendingCategory = () => {
+    const expenseTransactions = filteredTransactions.filter(t => t.type === "expense");
+    if (expenseTransactions.length === 0) return null;
+    
+    const categoryTotals = expenseTransactions.reduce((acc, transaction) => {
+      const { category, amount } = transaction;
+      acc[category] = (acc[category] || 0) + amount;
+      return acc;
+    }, {} as Record<string, number>);
+    
+    let topCategory = "";
+    let topAmount = 0;
+    
+    Object.entries(categoryTotals).forEach(([category, amount]) => {
+      if (amount > topAmount) {
+        topCategory = category;
+        topAmount = amount;
+      }
+    });
+    
+    return { category: topCategory, amount: topAmount };
+  };
+
+  const topSpendingCategory = getTopSpendingCategory();
+
   return (
     <div className="space-y-6">
       <div>
@@ -92,17 +118,17 @@ function Analytics() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-card p-4 rounded-lg border">
           <h3 className="text-sm font-medium text-muted-foreground mb-1">Total Income</h3>
-          <p className="text-2xl font-bold text-income">{formatCurrency(totalIncome)}</p>
+          <p className="text-2xl font-bold text-income dark:text-income-light">{formatCurrency(totalIncome)}</p>
         </div>
         
         <div className="bg-card p-4 rounded-lg border">
           <h3 className="text-sm font-medium text-muted-foreground mb-1">Total Expenses</h3>
-          <p className="text-2xl font-bold text-expense">{formatCurrency(totalExpenses)}</p>
+          <p className="text-2xl font-bold text-expense dark:text-expense-light">{formatCurrency(totalExpenses)}</p>
         </div>
         
         <div className="bg-card p-4 rounded-lg border">
           <h3 className="text-sm font-medium text-muted-foreground mb-1">Savings Rate</h3>
-          <p className="text-2xl font-bold text-primary">
+          <p className="text-2xl font-bold text-primary dark:text-primary-foreground">
             {savingsRate.toFixed(1)}%
             <span className="text-sm text-muted-foreground ml-1">
               ({formatCurrency(savings)})
@@ -120,27 +146,28 @@ function Analytics() {
         <div className="bg-card p-6 rounded-lg border">
           <h3 className="text-lg font-medium mb-4">Spending Insights</h3>
           <div className="space-y-4">
-            {/* Dynamic insights would go here in a real app with more data analysis */}
-            <div className="p-4 bg-income-light rounded-lg">
+            <div className="p-4 bg-income-light dark:bg-income/10 rounded-lg">
               <p className="font-medium">Savings Potential</p>
               <p className="text-sm text-muted-foreground">
                 Your savings rate is {savingsRate.toFixed(1)}%. Financial experts recommend saving at least 20% of your income.
               </p>
             </div>
             
-            <div className="p-4 bg-accent rounded-lg">
+            <div className="p-4 bg-accent dark:bg-accent/20 rounded-lg">
               <p className="font-medium">Top Spending Category</p>
               <p className="text-sm text-muted-foreground">
-                {filteredTransactions.length > 0 
-                  ? "Review your highest expense categories to identify potential savings."
+                {topSpendingCategory 
+                  ? `Your highest expense category is "${topSpendingCategory.category}" (${formatCurrency(topSpendingCategory.amount)}). Review to identify potential savings.`
                   : "Add more transactions to see insights about your spending patterns."}
               </p>
             </div>
 
-            <div className="p-4 bg-primary/10 rounded-lg">
+            <div className="p-4 bg-primary/10 dark:bg-primary/20 rounded-lg">
               <p className="font-medium">Month-over-Month Comparison</p>
               <p className="text-sm text-muted-foreground">
-                Track your spending trends over time to help maintain your financial goals.
+                {filteredTransactions.length > 0
+                  ? `You have ${filteredTransactions.length} transactions in this period. Track your spending trends over time to help maintain your financial goals.`
+                  : "Add transactions to track your spending trends over time."}
               </p>
             </div>
           </div>

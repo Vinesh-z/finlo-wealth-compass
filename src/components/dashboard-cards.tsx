@@ -1,5 +1,5 @@
 
-import { ArrowUpRight, ArrowDownRight, DollarSign, PiggyBank } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, PiggyBank } from "lucide-react";
 import { CardStat } from "@/components/ui/card-stat";
 import { Transaction } from "@/types";
 import { formatCurrency } from "@/utils/format";
@@ -37,8 +37,8 @@ export function DashboardCards({ transactions, previousMonthData }: DashboardCar
       <CardStat
         title="Total Income"
         value={formatCurrency(totalIncome)}
-        icon={<ArrowUpRight className="h-4 w-4 text-income" />}
-        className="bg-income-light"
+        icon={<ArrowUpRight className="h-4 w-4 text-income dark:text-income-light" />}
+        className="bg-income-light dark:bg-income/10"
         trend={previousMonthData ? {
           value: incomeTrend,
           isPositive: incomeTrend >= 0
@@ -48,8 +48,8 @@ export function DashboardCards({ transactions, previousMonthData }: DashboardCar
       <CardStat
         title="Total Expenses"
         value={formatCurrency(totalExpenses)}
-        icon={<ArrowDownRight className="h-4 w-4 text-expense" />}
-        className="bg-expense-light"
+        icon={<ArrowDownRight className="h-4 w-4 text-expense dark:text-expense-light" />}
+        className="bg-expense-light dark:bg-expense/10"
         trend={previousMonthData ? {
           value: expensesTrend,
           isPositive: expensesTrend < 0 // For expenses, negative trend is positive
@@ -59,8 +59,8 @@ export function DashboardCards({ transactions, previousMonthData }: DashboardCar
       <CardStat
         title="Total Savings"
         value={formatCurrency(savings)}
-        icon={<PiggyBank className="h-4 w-4 text-primary" />}
-        className="bg-primary/10"
+        icon={<PiggyBank className="h-4 w-4 text-primary dark:text-primary-foreground" />}
+        className="bg-primary/10 dark:bg-primary/20"
         trend={previousMonthData ? {
           value: savingsTrend,
           isPositive: savingsTrend >= 0
