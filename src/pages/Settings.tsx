@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Card, 
   CardContent, 
@@ -19,11 +19,36 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useTheme } from "@/hooks/use-theme";
+import { toast } from "@/components/ui/use-toast";
+import { Sun, Moon, BadgeIndianRupee } from "lucide-react";
 
 function Settings() {
-  const [darkMode, setDarkMode] = useState(false);
-  const [currency, setCurrency] = useState("USD");
+  const { theme, setTheme } = useTheme();
+  const [currency, setCurrency] = useState("INR");
   const [emailNotifications, setEmailNotifications] = useState(true);
+
+  const handleThemeChange = (checked: boolean) => {
+    const newTheme = checked ? "dark" : "light";
+    setTheme(newTheme);
+    toast({
+      title: "Theme Updated",
+      description: `Theme set to ${newTheme} mode.`,
+      duration: 3000,
+    });
+  };
+
+  const handleCurrencyChange = (newCurrency: string) => {
+    setCurrency(newCurrency);
+    toast({
+      title: "Currency Updated",
+      description: `Currency set to ${newCurrency}.`,
+      duration: 3000,
+    });
+  };
+
+  // Check if theme is dark
+  const isDarkTheme = theme === "dark";
 
   return (
     <div className="space-y-6">
@@ -72,33 +97,41 @@ function Settings() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Dark Mode</p>
-                <p className="text-sm text-muted-foreground">
-                  Toggle dark mode on or off
-                </p>
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-full bg-secondary">
+                  {isDarkTheme ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+                </div>
+                <div>
+                  <p className="font-medium">Dark Mode</p>
+                  <p className="text-sm text-muted-foreground">
+                    Toggle dark mode on or off
+                  </p>
+                </div>
               </div>
               <Switch 
-                checked={darkMode} 
-                onCheckedChange={setDarkMode} 
+                checked={isDarkTheme} 
+                onCheckedChange={handleThemeChange} 
               />
             </div>
             
             <Separator />
             
             <div className="space-y-2">
-              <Label htmlFor="currency">Currency</Label>
-              <Select value={currency} onValueChange={setCurrency}>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-1.5 rounded-full bg-secondary">
+                  <BadgeIndianRupee className="h-5 w-5" />
+                </div>
+                <Label htmlFor="currency">Currency</Label>
+              </div>
+              <Select value={currency} onValueChange={handleCurrencyChange}>
                 <SelectTrigger id="currency">
                   <SelectValue placeholder="Select currency" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="USD">US Dollar (USD)</SelectItem>
-                  <SelectItem value="EUR">Euro (EUR)</SelectItem>
-                  <SelectItem value="GBP">British Pound (GBP)</SelectItem>
-                  <SelectItem value="CAD">Canadian Dollar (CAD)</SelectItem>
-                  <SelectItem value="AUD">Australian Dollar (AUD)</SelectItem>
-                  <SelectItem value="JPY">Japanese Yen (JPY)</SelectItem>
+                  <SelectItem value="INR">Indian Rupee (₹)</SelectItem>
+                  <SelectItem value="USD">US Dollar ($)</SelectItem>
+                  <SelectItem value="EUR">Euro (€)</SelectItem>
+                  <SelectItem value="GBP">British Pound (£)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
