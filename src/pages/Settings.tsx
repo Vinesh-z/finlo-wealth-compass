@@ -28,6 +28,36 @@ function Settings() {
   const { theme, setTheme } = useTheme();
   const [currency, setCurrency] = useState("INR");
   const [emailNotifications, setEmailNotifications] = useState(true);
+  
+  // Profile form state
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [bio, setBio] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch user profile data
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          // Set email from auth session
+          setEmail(session.user.email || "");
+          
+          // Get user metadata if available
+          const metadata = session.user.user_metadata;
+          if (metadata) {
+            setName(metadata.full_name || "");
+            setBio(metadata.bio || "");
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
+    
+    fetchUserProfile();
+  }, []);
 
   const handleThemeChange = (checked: boolean) => {
     const newTheme = checked ? "dark" : "light";
@@ -46,6 +76,34 @@ function Settings() {
       description: `Currency set to ${newCurrency}.`,
       duration: 3000,
     });
+  };
+
+  const handleSaveProfile = async () => {
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          full_name: name,
+          bio: bio
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Profile Updated",
+        description: "Your profile information has been saved.",
+        duration: 3000,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update profile",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleExportData = async (format: 'csv' | 'pdf') => {
@@ -126,20 +184,43 @@ function Settings() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
-                <Input id="name" placeholder="John Doe" />
+                <Input 
+                  id="name" 
+                  placeholder="John Doe" 
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="john@example.com" />
+                <Input 
+                  id="email" 
+                  type="email" 
+                  placeholder="john@example.com" 
+                  value={email}
+                  readOnly
+                  disabled
+                  className="bg-muted"
+                />
               </div>
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="bio">About</Label>
-              <Input id="bio" placeholder="Tell us about yourself" />
+              <Input 
+                id="bio" 
+                placeholder="Tell us about yourself" 
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+              />
             </div>
             
-            <Button>Save Changes</Button>
+            <Button 
+              onClick={handleSaveProfile}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Saving..." : "Save Changes"}
+            </Button>
           </CardContent>
         </Card>
 
