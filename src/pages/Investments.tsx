@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
@@ -97,8 +98,8 @@ function Investments() {
     const pfValue = providentFunds.reduce((sum, pf) => sum + pf.currentBalance, 0);
     
     const pmValue = preciousMetals.reduce((sum, metal) => {
-      const defaultPrice = metal.purchase_price_per_unit || 0;
-      return sum + (metal.quantity * defaultPrice);
+      // Fix: Changed from purchase_price_per_unit to purchasePricePerUnit
+      return sum + (metal.quantity * metal.purchasePricePerUnit);
     }, 0);
     
     return investmentsValue + fdValue + pfValue + pmValue;
