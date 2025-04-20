@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { 
   Card, 
@@ -21,6 +22,7 @@ import { Switch } from "@/components/ui/switch";
 import { useTheme } from "@/hooks/use-theme";
 import { toast } from "@/components/ui/use-toast";
 import { Sun, Moon, BadgeIndianRupee } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 function Settings() {
   const { theme, setTheme } = useTheme();
