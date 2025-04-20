@@ -13,10 +13,9 @@ import { TransactionList } from "@/components/transaction-list";
 import { IncomeExpenseChart } from "@/components/charts/income-expense-chart";
 import { ExpensePieChart } from "@/components/charts/expense-pie-chart";
 import { Transaction, TransactionCategory, TransactionType } from "@/types";
-import { mockTransactions } from "@/data/mockData";
 
 function Dashboard() {
-  const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   const handleAddTransaction = (transaction: {
     amount: number;
@@ -51,30 +50,12 @@ function Dashboard() {
     );
   });
 
-  // Filter transactions for previous month
-  const prevMonth = thisMonth === 0 ? 11 : thisMonth - 1;
-  const prevYear = thisMonth === 0 ? thisYear - 1 : thisYear;
-  
-  const prevMonthTransactions = transactions.filter(transaction => {
-    const transactionDate = new Date(transaction.date);
-    return (
-      transactionDate.getMonth() === prevMonth && 
-      transactionDate.getFullYear() === prevYear
-    );
-  });
-
-  // Calculate previous month summary for trends
+  // Calculate empty previous month data 
   const prevMonthData = {
-    income: prevMonthTransactions
-      .filter(t => t.type === "income")
-      .reduce((sum, t) => sum + t.amount, 0),
-    expenses: prevMonthTransactions
-      .filter(t => t.type === "expense")
-      .reduce((sum, t) => sum + t.amount, 0),
-    savings: 0, // Will be calculated
+    income: 0,
+    expenses: 0,
+    savings: 0
   };
-  
-  prevMonthData.savings = prevMonthData.income - prevMonthData.expenses;
 
   return (
     <div className="space-y-6">

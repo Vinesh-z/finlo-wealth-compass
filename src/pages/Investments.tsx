@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
@@ -6,8 +5,7 @@ import {
   FixedDeposit, 
   ProvidentFund, 
   PreciousMetal, 
-  Insurance, 
-  InsuranceDocument 
+  Insurance
 } from "@/types";
 import { InvestmentForm } from "@/components/investment-form";
 import { InvestmentList } from "@/components/investment-list";
@@ -83,7 +81,6 @@ function Investments() {
     setInsurances([newInsurance, ...insurances]);
   };
 
-  // Calculate total value of all assets
   const calculateTotalAssetsValue = () => {
     const investmentsValue = investments.reduce((sum, inv) => sum + inv.currentValue, 0);
     
@@ -99,38 +96,25 @@ function Investments() {
     
     const pfValue = providentFunds.reduce((sum, pf) => sum + pf.currentBalance, 0);
     
-    // For precious metals, we would typically calculate using current market prices
-    // Here we're using a simplified mock calculation
     const pmValue = preciousMetals.reduce((sum, metal) => {
-      // Mock current prices
-      const currentPrices: Record<string, Record<string, number>> = {
-        gold: { gram: 6500, ounce: 200000, kg: 6500000 },
-        silver: { gram: 80, ounce: 2300, kg: 80000 }
-      };
-      const currentPrice = currentPrices[metal.type][metal.unit];
-      return sum + (metal.quantity * currentPrice);
+      const defaultPrice = metal.purchase_price_per_unit || 0;
+      return sum + (metal.quantity * defaultPrice);
     }, 0);
     
     return investmentsValue + fdValue + pfValue + pmValue;
   };
 
-  // Generate a random fun fact about investments
   const getRandomFunFact = () => {
     const funFacts = [
       "If you had invested ₹10,000 in Bitcoin in 2010, it would be worth over ₹10 crore today!",
       "Warren Buffett made 99% of his wealth after his 50th birthday, showing it's never too late to invest.",
       "The Indian stock market (Sensex) has given average returns of around 15% over the last 40 years.",
       "Gold has never lost its value in the long term and has been used as currency for over 5,000 years.",
-      "Compound interest is often called the eighth wonder of the world - even small regular investments can grow significantly over time.",
-      "Regular SIP investments of just ₹5,000 per month for 30 years at 12% returns could make you a crorepati.",
-      "The 50:30:20 rule suggests using 50% of income for needs, 30% for wants, and 20% for savings and investments.",
-      "India's Public Provident Fund (PPF) is one of the safest and tax-efficient investments available.",
-      "The world's first mutual fund was created in 1924, almost 100 years ago."
+      "Compound interest is often called the eighth wonder of the world - even small regular investments can grow significantly over time."
     ];
     return funFacts[Math.floor(Math.random() * funFacts.length)];
   };
 
-  // Calculate future value projection
   const calculateFutureValue = (years: number) => {
     const totalAssets = calculateTotalAssetsValue();
     const annualGrowthRate = 0.12; // Assuming 12% annual growth

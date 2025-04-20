@@ -3,10 +3,9 @@ import { useState } from "react";
 import { TransactionForm } from "@/components/transaction-form";
 import { TransactionList } from "@/components/transaction-list";
 import { Transaction, TransactionCategory, TransactionType } from "@/types";
-import { mockTransactions } from "@/data/mockData";
 
 function Transactions() {
-  const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   const handleAddTransaction = (transaction: {
     amount: number;
