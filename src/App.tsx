@@ -119,8 +119,8 @@ const App = () => {
             </Routes>
             <Toaster />
             <Sonner />
-          </TooltipProvider>
-        </BrowserRouter>
+          </BrowserRouter>
+        </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
