@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   Card, 
@@ -47,7 +46,61 @@ function Settings() {
     });
   };
 
-  // Check if theme is dark
+  const handleExportData = async (format: 'csv' | 'pdf') => {
+    try {
+      const { data: fixedDeposits } = await supabase.from('fixed_deposits').select('*');
+      const { data: insurance } = await supabase.from('insurance').select('*');
+      const { data: notes } = await supabase.from('notes').select('*');
+      const { data: preciousMetals } = await supabase.from('precious_metals').select('*');
+      const { data: providentFunds } = await supabase.from('provident_funds').select('*');
+      const { data: reminders } = await supabase.from('reminders').select('*');
+
+      const exportData = {
+        fixedDeposits,
+        insurance,
+        notes,
+        preciousMetals,
+        providentFunds,
+        reminders,
+      };
+
+      if (format === 'csv') {
+        const csvContent = Object.entries(exportData).map(([category, items]) => {
+          if (!items?.length) return '';
+          const headers = Object.keys(items[0]).join(',');
+          const rows = items.map(item => Object.values(item).join(',')).join('\n');
+          return `${category}\n${headers}\n${rows}\n\n`;
+        }).join('');
+
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'financial-data.csv';
+        a.click();
+      } else {
+        const jsonString = JSON.stringify(exportData, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'financial-data.json';
+        a.click();
+      }
+
+      toast({
+        title: "Success",
+        description: `Data exported successfully as ${format.toUpperCase()}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to export data: " + error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const isDarkTheme = theme === "dark";
 
   return (
@@ -164,8 +217,18 @@ function Settings() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Button variant="outline">Export Data (CSV)</Button>
-              <Button variant="outline">Export Data (PDF)</Button>
+              <Button 
+                variant="outline" 
+                onClick={() => handleExportData('csv')}
+              >
+                Export Data (CSV)
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => handleExportData('pdf')}
+              >
+                Export Data (PDF)
+              </Button>
             </div>
             
             <Separator />
