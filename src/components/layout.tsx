@@ -8,9 +8,9 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex w-full">
       <NavMenu />
-      <main className="md:pl-64 min-h-screen">
+      <main className="md:pl-64 min-h-screen w-full">
         <div className="container mx-auto p-6">
           {children}
         </div>

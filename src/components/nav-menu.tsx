@@ -1,54 +1,75 @@
 
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
+import { Menu, Home, BarChart2, CreditCard, PieChart, Briefcase, Bookmark, Settings, LogOut } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 export function NavMenu() {
   const location = useLocation();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
   const routes = [
     {
-      href: "/",
-      label: "Home",
-      active: location.pathname === "/",
-    },
-    {
       href: "/dashboard",
       label: "Dashboard",
+      icon: Home,
       active: location.pathname === "/dashboard",
     },
     {
       href: "/transactions",
       label: "Transactions",
+      icon: CreditCard,
       active: location.pathname === "/transactions",
     },
     {
       href: "/analytics",
       label: "Analytics",
+      icon: BarChart2,
       active: location.pathname === "/analytics",
     },
     {
       href: "/investments",
       label: "Investments",
+      icon: Briefcase,
       active: location.pathname === "/investments",
     },
     {
       href: "/notes",
       label: "Notes & Reminders",
+      icon: Bookmark,
       active: location.pathname === "/notes",
     },
     {
       href: "/settings",
       label: "Settings",
+      icon: Settings,
       active: location.pathname === "/settings",
     },
   ];
+
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Signed out successfully",
+        duration: 3000,
+      });
+      navigate("/");
+    } catch (error) {
+      toast({
+        title: "Error signing out",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
+  };
 
   return (
     <>
@@ -78,16 +99,28 @@ export function NavMenu() {
                       : "text-muted-foreground"
                   )}
                 >
+                  <route.icon className="h-5 w-5 mr-3" />
                   {route.label}
                 </Link>
               ))}
+              <Button 
+                variant="ghost" 
+                className="justify-start mt-4 text-red-500" 
+                onClick={() => {
+                  handleSignOut();
+                  setOpen(false);
+                }}
+              >
+                <LogOut className="h-5 w-5 mr-3" />
+                Sign Out
+              </Button>
             </div>
           </SheetContent>
         </Sheet>
       ) : (
         <div className="fixed inset-y-0 left-0 z-40 w-64 bg-sidebar border-r border-border hidden md:block">
           <div className="h-20 flex items-center px-8">
-            <Link to="/" className="flex items-center gap-2">
+            <Link to="/dashboard" className="flex items-center gap-2">
               <span className="font-bold text-lg">Zinfy</span>
             </Link>
           </div>
@@ -103,9 +136,18 @@ export function NavMenu() {
                     : "text-sidebar-foreground"
                 )}
               >
+                <route.icon className="h-5 w-5 mr-3" />
                 {route.label}
               </Link>
             ))}
+            <Button 
+              variant="ghost" 
+              className="justify-start w-full mt-4 text-red-500" 
+              onClick={handleSignOut}
+            >
+              <LogOut className="h-5 w-5 mr-3" />
+              Sign Out
+            </Button>
           </div>
         </div>
       )}
