@@ -1,16 +1,17 @@
-
 import { useState, useEffect } from "react";
 import { TransactionForm } from "@/components/transaction-form";
 import { TransactionList } from "@/components/transaction-list";
 import { Transaction, TransactionCategory, TransactionType } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { TransactionListMobile } from "@/components/transaction-list-mobile";
 
 function Transactions() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const isMobile = useIsMobile();
 
-  // Fetch transactions on component mount
   useEffect(() => {
     fetchTransactions();
   }, []);
@@ -124,10 +125,17 @@ function Transactions() {
         </div>
         
         <div className="md:col-span-2">
-          <TransactionList 
-            transactions={transactions} 
-            isLoading={isLoading}
-          />
+          {isMobile ? (
+            <TransactionListMobile
+              transactions={transactions}
+              isLoading={isLoading}
+            />
+          ) : (
+            <TransactionList 
+              transactions={transactions} 
+              isLoading={isLoading}
+            />
+          )}
         </div>
       </div>
     </div>
