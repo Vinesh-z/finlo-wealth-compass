@@ -2,10 +2,19 @@
 import { Transaction } from "@/types";
 import { formatCurrency } from "@/utils/format";
 import { useMemo } from "react";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { Pencil, Trash2 } from "lucide-react";
 
 type TransactionListMobileProps = {
   transactions: Transaction[];
   isLoading?: boolean;
+  onDelete?: (id: string) => void;
+  onEdit?: (transaction: Transaction) => void;
 };
 
 function getCategoryIcon(category: string) {
@@ -43,7 +52,12 @@ function groupByDate(transactions: Transaction[]) {
 const DAY_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-export function TransactionListMobile({ transactions = [], isLoading = false }: TransactionListMobileProps) {
+export function TransactionListMobile({ 
+  transactions = [], 
+  isLoading = false, 
+  onDelete, 
+  onEdit 
+}: TransactionListMobileProps) {
   const grouped = useMemo(() => groupByDate(transactions), [transactions]);
   const groupKeys = Object.keys(grouped)
     .sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
@@ -91,8 +105,8 @@ export function TransactionListMobile({ transactions = [], isLoading = false }: 
                 <span className="text-xl font-bold text-primary">{dayNum}</span>
                 <span className="text-xs uppercase font-medium text-gray-500 dark:text-gray-300 leading-tight">{monthName}</span>
                 <span className={`rounded px-2 py-0.5 text-[11px] font-semibold ${
-                  weekDayName === "Sun" ? "bg-red-100 text-red-500"
-                  : weekDayName === "Sat" ? "bg-blue-100 text-blue-600"
+                  weekDayName === "Sun" ? "bg-red-100 text-red-500 dark:bg-red-900/20 dark:text-red-300"
+                  : weekDayName === "Sat" ? "bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300"
                   : "bg-neutral-100 text-neutral-500 dark:bg-zinc-700 dark:text-zinc-200"
                 }`}>
                   {weekDayName}
@@ -116,33 +130,50 @@ export function TransactionListMobile({ transactions = [], isLoading = false }: 
             </div>
             <div className="space-y-3">
               {txs.map(tx => (
-                <div
-                  key={tx.id}
-                  className={`
-                    flex items-center gap-3 rounded-2xl p-4 mt-0
-                    bg-white/90 border border-neutral-100 shadow-sm
-                    dark:bg-[#272636] dark:border-zinc-800
-                  `}
-                >
-                  <span className="text-2xl min-w-[36px] text-center">{getCategoryIcon(tx.category)}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-zinc-900 dark:text-white text-[16px] leading-5 truncate">
-                      {tx.description || tx.category.charAt(0).toUpperCase() + tx.category.slice(1)}
+                <ContextMenu key={tx.id}>
+                  <ContextMenuTrigger>
+                    <div
+                      className={`
+                        flex items-center gap-3 rounded-2xl p-4 mt-0
+                        bg-white/90 border border-neutral-100 shadow-sm
+                        dark:bg-[#272636] dark:border-zinc-800
+                      `}
+                    >
+                      <span className="text-2xl min-w-[36px] text-center">{getCategoryIcon(tx.category)}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-zinc-900 dark:text-white text-[16px] leading-5 truncate">
+                          {tx.description || tx.category.charAt(0).toUpperCase() + tx.category.slice(1)}
+                        </div>
+                        <div className="text-xs text-zinc-500 dark:text-zinc-400 flex items-center gap-1 mt-0.5">
+                          <span className="capitalize">{tx.category}</span>
+                          <span className="opacity-50">•</span>
+                          <span>Cash</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end min-w-[84px]">
+                        {tx.type === "income" ? (
+                          <span className="font-medium text-blue-500">+{formatCurrency(tx.amount)}</span>
+                        ) : (
+                          <span className="font-medium text-red-500">-{formatCurrency(tx.amount)}</span>
+                        )}
+                      </div>
                     </div>
-                    <div className="text-xs text-zinc-500 dark:text-zinc-400 flex items-center gap-1 mt-0.5">
-                      <span className="capitalize">{tx.category}</span>
-                      <span className="opacity-50">•</span>
-                      <span>Cash</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end min-w-[84px]">
-                    {tx.type === "income" ? (
-                      <span className="font-medium text-blue-500">+{formatCurrency(tx.amount)}</span>
-                    ) : (
-                      <span className="font-medium text-red-500">-{formatCurrency(tx.amount)}</span>
+                  </ContextMenuTrigger>
+                  <ContextMenuContent>
+                    {onEdit && (
+                      <ContextMenuItem onClick={() => onEdit(tx)} className="cursor-pointer">
+                        <Pencil className="mr-2 h-4 w-4" />
+                        <span>Edit Transaction</span>
+                      </ContextMenuItem>
                     )}
-                  </div>
-                </div>
+                    {onDelete && (
+                      <ContextMenuItem onClick={() => onDelete(tx.id)} className="cursor-pointer text-red-500 dark:text-red-400">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        <span>Delete Transaction</span>
+                      </ContextMenuItem>
+                    )}
+                  </ContextMenuContent>
+                </ContextMenu>
               ))}
             </div>
           </div>

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { TransactionForm } from "@/components/transaction-form";
 import { TransactionList } from "@/components/transaction-list";
@@ -6,10 +7,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { TransactionListMobile } from "@/components/transaction-list-mobile";
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 function Transactions() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
+  const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -110,6 +123,78 @@ function Transactions() {
     }
   };
 
+  const handleEditTransaction = async (transaction: Transaction) => {
+    try {
+      const { error } = await supabase
+        .from('transactions')
+        .update({
+          amount: transaction.amount,
+          type: transaction.type,
+          category: transaction.category,
+          description: transaction.description,
+          date: transaction.date.toISOString(),
+        })
+        .eq('id', transaction.id);
+
+      if (error) throw error;
+
+      // Update local state
+      setTransactions(transactions.map(t => 
+        t.id === transaction.id ? transaction : t
+      ));
+      
+      setEditingTransaction(null);
+      
+      toast({
+        title: "Success",
+        description: "Transaction updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating transaction:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update transaction",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteTransaction = async () => {
+    if (!transactionToDelete) return;
+    
+    try {
+      const { error } = await supabase
+        .from('transactions')
+        .delete()
+        .eq('id', transactionToDelete);
+
+      if (error) throw error;
+
+      // Update local state
+      setTransactions(transactions.filter(t => t.id !== transactionToDelete));
+      
+      toast({
+        title: "Success",
+        description: "Transaction deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting transaction:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete transaction",
+        variant: "destructive",
+      });
+    } finally {
+      setTransactionToDelete(null);
+      setIsDeleteDialogOpen(false);
+    }
+  };
+
+  const confirmDelete = (id: string) => {
+    setTransactionToDelete(id);
+    setIsDeleteDialogOpen(true);
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -121,7 +206,12 @@ function Transactions() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-1">
-          <TransactionForm onAddTransaction={handleAddTransaction} />
+          <TransactionForm 
+            onAddTransaction={handleAddTransaction} 
+            editingTransaction={editingTransaction}
+            onEditTransaction={handleEditTransaction}
+            onCancelEdit={() => setEditingTransaction(null)}
+          />
         </div>
         
         <div className="md:col-span-2">
@@ -129,15 +219,39 @@ function Transactions() {
             <TransactionListMobile
               transactions={transactions}
               isLoading={isLoading}
+              onEdit={setEditingTransaction}
+              onDelete={confirmDelete}
             />
           ) : (
             <TransactionList 
               transactions={transactions} 
               isLoading={isLoading}
+              onEdit={setEditingTransaction}
+              onDelete={confirmDelete}
             />
           )}
         </div>
       </div>
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Transaction</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this transaction? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteTransaction}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Select, 
   SelectContent, 
@@ -11,13 +11,54 @@ import { Label } from "@/components/ui/label";
 import { IncomeExpenseChart } from "@/components/charts/income-expense-chart";
 import { ExpensePieChart } from "@/components/charts/expense-pie-chart";
 import { Transaction } from "@/types";
-import { mockTransactions } from "@/data/mockData";
 import { formatCurrency } from "@/utils/format";
 import { calculateTotalIncome, calculateTotalExpenses, calculateSavings } from "@/utils/calculations";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 function Analytics() {
-  const [transactions] = useState<Transaction[]>(mockTransactions);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [timeFrame, setTimeFrame] = useState<string>("all");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  const fetchTransactions = async () => {
+    try {
+      setIsLoading(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .order('date', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedTransactions: Transaction[] = (data || []).map(item => ({
+        id: item.id,
+        amount: Number(item.amount),
+        type: item.type as Transaction['type'],
+        category: item.category as Transaction['category'],
+        description: item.description || '',
+        date: new Date(item.date),
+      }));
+
+      setTransactions(formattedTransactions);
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load transactions",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Filter transactions based on time frame
   const filteredTransactions = (() => {
@@ -87,6 +128,22 @@ function Analytics() {
   };
 
   const topSpendingCategory = getTopSpendingCategory();
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
+          <p className="text-muted-foreground">
+            Visualize your financial data to gain insights
+          </p>
+        </div>
+        <div className="h-[300px] flex items-center justify-center">
+          <p className="text-muted-foreground">Loading your financial data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
