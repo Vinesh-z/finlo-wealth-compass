@@ -84,7 +84,6 @@ function Investments() {
 
   const calculateTotalAssetsValue = () => {
     const investmentsValue = investments.reduce((sum, inv) => sum + inv.currentValue, 0);
-    
     const fdValue = fixedDeposits.reduce((sum, fd) => {
       const principal = fd.principalAmount;
       const rate = fd.interestRate / 100;
@@ -94,14 +93,11 @@ function Investments() {
       const maturityValue = principal * Math.pow(1 + rate, timeInYears);
       return sum + maturityValue;
     }, 0);
-    
     const pfValue = providentFunds.reduce((sum, pf) => sum + pf.currentBalance, 0);
-    
     const pmValue = preciousMetals.reduce((sum, metal) => {
       // Fix: Changed from purchase_price_per_unit to purchasePricePerUnit
       return sum + (metal.quantity * metal.purchasePricePerUnit);
     }, 0);
-    
     return investmentsValue + fdValue + pfValue + pmValue;
   };
 
@@ -193,57 +189,38 @@ function Investments() {
         </TabsList>
 
         <TabsContent value="general" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-1">
-              <InvestmentForm onAddInvestment={handleAddInvestment} />
-            </div>
-            <div className="md:col-span-2">
-              <InvestmentList investments={investments} />
-            </div>
+          {/* Stacked vertically for less cramping */}
+          <div className="space-y-6">
+            <InvestmentForm onAddInvestment={handleAddInvestment} />
+            <InvestmentList investments={investments} />
           </div>
         </TabsContent>
 
         <TabsContent value="fixed-deposits" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-1">
-              <FixedDepositForm onAddDeposit={handleAddFixedDeposit} />
-            </div>
-            <div className="md:col-span-2">
-              <FixedDepositList deposits={fixedDeposits} />
-            </div>
+          <div className="space-y-6">
+            <FixedDepositForm onAddDeposit={handleAddFixedDeposit} />
+            <FixedDepositList deposits={fixedDeposits} />
           </div>
         </TabsContent>
 
         <TabsContent value="provident-fund" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-1">
-              <ProvidentFundForm onAddFund={handleAddProvidentFund} />
-            </div>
-            <div className="md:col-span-2">
-              <ProvidentFundList funds={providentFunds} />
-            </div>
+          <div className="space-y-6">
+            <ProvidentFundForm onAddFund={handleAddProvidentFund} />
+            <ProvidentFundList funds={providentFunds} />
           </div>
         </TabsContent>
 
         <TabsContent value="precious-metals" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-1">
-              <PreciousMetalForm onAddMetal={handleAddPreciousMetal} />
-            </div>
-            <div className="md:col-span-2">
-              <PreciousMetalList metals={preciousMetals} />
-            </div>
+          <div className="space-y-6">
+            <PreciousMetalForm onAddMetal={handleAddPreciousMetal} />
+            <PreciousMetalList metals={preciousMetals} />
           </div>
         </TabsContent>
 
         <TabsContent value="insurance" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-1">
-              <InsuranceForm onAddInsurance={handleAddInsurance} />
-            </div>
-            <div className="md:col-span-2">
-              <InsuranceList insurances={insurances} />
-            </div>
+          <div className="space-y-6">
+            <InsuranceForm onAddInsurance={handleAddInsurance} />
+            <InsuranceList insurances={insurances} />
           </div>
         </TabsContent>
       </Tabs>
