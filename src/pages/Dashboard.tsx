@@ -20,7 +20,6 @@ function Dashboard() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Fetch transactions on component mount
   useEffect(() => {
     fetchTransactions();
   }, []);
@@ -29,29 +28,23 @@ function Dashboard() {
     try {
       setIsLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        return;
-      }
+      if (!session) return;
 
       const { data, error } = await supabase
-        .from('transactions')
-        .select('*')
-        .order('date', { ascending: false });
+        .from("transactions")
+        .select("*")
+        .order("date", { ascending: false });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
-      // Convert database format to app format
-      const formattedTransactions = data?.map(item => ({
-        id: item.id,
-        amount: item.amount,
-        type: item.type as TransactionType,
-        category: item.category as TransactionCategory,
-        description: item.description || '',
-        date: new Date(item.date),
-      })) || [];
+      const formattedTransactions: Transaction[] = (data || []).map(item => ({
+          id: item.id,
+          amount: Number(item.amount),
+          type: item.type as TransactionType,
+          category: item.category as TransactionCategory,
+          description: item.description || "",
+          date: new Date(item.date),
+      }));
 
       setTransactions(formattedTransactions);
     } catch (error) {
@@ -74,10 +67,21 @@ function Dashboard() {
     date: Date;
   }) => {
     try {
-      // Insert transaction into Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Not signed in",
+          description: "Please sign in to add transactions.",
+          variant: "destructive",
+        });
+        return;
+      }
+      const user_id = session.user.id;
+
       const { data, error } = await supabase
-        .from('transactions')
+        .from("transactions")
         .insert({
+          user_id,
           amount: transaction.amount,
           type: transaction.type,
           category: transaction.category,
@@ -87,22 +91,18 @@ function Dashboard() {
         .select()
         .single();
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
-      // Convert the returned data to our app format
       const newTransaction: Transaction = {
         id: data.id,
-        amount: data.amount,
+        amount: Number(data.amount),
         type: data.type as TransactionType,
         category: data.category as TransactionCategory,
-        description: data.description || '',
+        description: data.description || "",
         date: new Date(data.date),
       };
 
       setTransactions([newTransaction, ...transactions]);
-      
       toast({
         title: "Success",
         description: "Transaction added successfully",

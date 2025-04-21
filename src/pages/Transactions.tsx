@@ -19,29 +19,23 @@ function Transactions() {
     try {
       setIsLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        return;
-      }
+      if (!session) return;
 
       const { data, error } = await supabase
         .from('transactions')
         .select('*')
         .order('date', { ascending: false });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
-      // Convert database format to app format
-      const formattedTransactions = data?.map(item => ({
+      const formattedTransactions: Transaction[] = (data || []).map(item => ({
         id: item.id,
-        amount: item.amount,
+        amount: Number(item.amount),
         type: item.type as TransactionType,
         category: item.category as TransactionCategory,
         description: item.description || '',
         date: new Date(item.date),
-      })) || [];
+      }));
 
       setTransactions(formattedTransactions);
     } catch (error) {
@@ -64,10 +58,21 @@ function Transactions() {
     date: Date;
   }) => {
     try {
-      // Insert transaction into Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Not signed in",
+          description: "Please sign in to add transactions.",
+          variant: "destructive",
+        });
+        return;
+      }
+      const user_id = session.user.id;
+
       const { data, error } = await supabase
         .from('transactions')
         .insert({
+          user_id,
           amount: transaction.amount,
           type: transaction.type,
           category: transaction.category,
@@ -77,14 +82,11 @@ function Transactions() {
         .select()
         .single();
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
-      // Convert the returned data to our app format
       const newTransaction: Transaction = {
         id: data.id,
-        amount: data.amount,
+        amount: Number(data.amount),
         type: data.type as TransactionType,
         category: data.category as TransactionCategory,
         description: data.description || '',
