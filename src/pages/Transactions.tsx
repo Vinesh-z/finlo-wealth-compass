@@ -1,25 +1,110 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TransactionForm } from "@/components/transaction-form";
 import { TransactionList } from "@/components/transaction-list";
 import { Transaction, TransactionCategory, TransactionType } from "@/types";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 function Transactions() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const handleAddTransaction = (transaction: {
+  // Fetch transactions on component mount
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  const fetchTransactions = async () => {
+    try {
+      setIsLoading(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .order('date', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      // Convert database format to app format
+      const formattedTransactions = data?.map(item => ({
+        id: item.id,
+        amount: item.amount,
+        type: item.type as TransactionType,
+        category: item.category as TransactionCategory,
+        description: item.description || '',
+        date: new Date(item.date),
+      })) || [];
+
+      setTransactions(formattedTransactions);
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load transactions",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddTransaction = async (transaction: {
     amount: number;
     type: TransactionType;
     category: TransactionCategory;
     description: string;
     date: Date;
   }) => {
-    const newTransaction: Transaction = {
-      id: Math.random().toString(36).substring(2, 11),
-      ...transaction,
-    };
+    try {
+      // Insert transaction into Supabase
+      const { data, error } = await supabase
+        .from('transactions')
+        .insert({
+          amount: transaction.amount,
+          type: transaction.type,
+          category: transaction.category,
+          description: transaction.description,
+          date: transaction.date.toISOString(),
+        })
+        .select()
+        .single();
 
-    setTransactions([newTransaction, ...transactions]);
+      if (error) {
+        throw error;
+      }
+
+      // Convert the returned data to our app format
+      const newTransaction: Transaction = {
+        id: data.id,
+        amount: data.amount,
+        type: data.type as TransactionType,
+        category: data.category as TransactionCategory,
+        description: data.description || '',
+        date: new Date(data.date),
+      };
+
+      setTransactions([newTransaction, ...transactions]);
+      
+      toast({
+        title: "Success",
+        description: "Transaction added successfully",
+      });
+    } catch (error) {
+      console.error('Error adding transaction:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add transaction",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -37,7 +122,10 @@ function Transactions() {
         </div>
         
         <div className="md:col-span-2">
-          <TransactionList transactions={transactions} />
+          <TransactionList 
+            transactions={transactions} 
+            isLoading={isLoading}
+          />
         </div>
       </div>
     </div>
