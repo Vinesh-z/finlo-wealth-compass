@@ -568,7 +568,12 @@ function Investments() {
         </CardContent>
       </Card>
 
-      <InvestmentSummary investments={investments} />
+      <InvestmentSummary 
+        investments={investments}
+        fixedDeposits={fixedDeposits}
+        providentFunds={providentFunds}
+        preciousMetals={preciousMetals}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <InvestmentPortfolioChart investments={investments} />
