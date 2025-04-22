@@ -14,35 +14,12 @@ import {
   SelectItem, 
   SelectTrigger, 
   SelectValue,
-  SelectSeparator,
-  SelectLabel,
-  SelectGroup
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { 
-  Transaction, 
-  TransactionType, 
-  DefaultTransactionCategory,
-  CustomTransactionCategory
-} from "@/types";
-
-const DEFAULT_CATEGORIES: DefaultTransactionCategory[] = [
-  'food', 'social_life', 'pets', 'transport', 'household', 
-  'apparel', 'beauty', 'health', 'education', 'gift', 
-  'investment', 'subscription', 'baby', 'other'
-];
+import { Transaction, TransactionType } from "@/types";
+import { CategorySelector } from "./transaction-form/category-selector";
 
 interface TransactionFormProps {
   onAddTransaction: (transaction: {
@@ -69,14 +46,6 @@ export function TransactionForm({
   const [category, setCategory] = useState<string>("food");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [customCategories, setCustomCategories] = useState<CustomTransactionCategory[]>([]);
-  const [isNewCategoryDialogOpen, setIsNewCategoryDialogOpen] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState("");
-
-  // Fetch custom categories
-  useEffect(() => {
-    fetchCustomCategories();
-  }, []);
 
   // Update form when editing transaction changes
   useEffect(() => {
@@ -88,75 +57,6 @@ export function TransactionForm({
       setDate(new Date(editingTransaction.date).toISOString().slice(0, 10));
     }
   }, [editingTransaction]);
-
-  const fetchCustomCategories = async () => {
-    const { data, error } = await supabase
-      .from('custom_transaction_categories')
-      .select('*');
-
-    if (error) {
-      toast({
-        title: "Error fetching categories",
-        description: error.message,
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setCustomCategories(data);
-  };
-
-  const handleAddCustomCategory = async () => {
-    if (!newCategoryName.trim()) {
-      toast({
-        title: "Error",
-        description: "Category name cannot be empty",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Get current user session
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
-      toast({
-        title: "Error",
-        description: "You must be logged in to add custom categories",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Add user_id to the insert object
-    const { data, error } = await supabase
-      .from('custom_transaction_categories')
-      .insert({ 
-        name: newCategoryName.trim(),
-        user_id: session.user.id
-      })
-      .select()
-      .single();
-
-    if (error) {
-      toast({
-        title: "Error adding category",
-        description: error.message,
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setCustomCategories([...customCategories, data]);
-    setCategory(data.name);
-    setIsNewCategoryDialogOpen(false);
-    setNewCategoryName("");
-    
-    toast({
-      title: "Success",
-      description: "New category added successfully"
-    });
-  };
 
   const resetForm = () => {
     setAmount("");
@@ -178,8 +78,6 @@ export function TransactionForm({
       return;
     }
 
-    const isCustomCategory = !DEFAULT_CATEGORIES.includes(category as DefaultTransactionCategory);
-
     if (editingTransaction && onEditTransaction) {
       onEditTransaction({
         ...editingTransaction,
@@ -187,8 +85,7 @@ export function TransactionForm({
         type,
         category,
         description,
-        date: new Date(date),
-        is_custom_category: isCustomCategory
+        date: new Date(date)
       });
     } else {
       onAddTransaction({
@@ -197,7 +94,7 @@ export function TransactionForm({
         category,
         description,
         date: new Date(date),
-        is_custom_category: isCustomCategory
+        is_custom_category: false
       });
     }
 
@@ -261,89 +158,10 @@ export function TransactionForm({
               </Select>
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <div className="flex gap-2">
-                <Select 
-                  value={category} 
-                  onValueChange={setCategory}
-                >
-                  <SelectTrigger className="flex-1">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Default Categories</SelectLabel>
-                      {DEFAULT_CATEGORIES.map(cat => (
-                        <SelectItem key={cat} value={cat}>
-                          {cat.split('_').map(word => 
-                            word.charAt(0).toUpperCase() + word.slice(1)
-                          ).join(' ')}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                    
-                    {customCategories.length > 0 && (
-                      <>
-                        <SelectSeparator />
-                        <SelectGroup>
-                          <SelectLabel>Custom Categories</SelectLabel>
-                          {customCategories.map(cat => (
-                            <SelectItem key={cat.id} value={cat.name}>
-                              {cat.name}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </>
-                    )}
-                  </SelectContent>
-                </Select>
-                
-                <Dialog open={isNewCategoryDialogOpen} onOpenChange={setIsNewCategoryDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      className="shrink-0"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Add New Category</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="newCategory">Category Name</Label>
-                        <Input
-                          id="newCategory"
-                          value={newCategoryName}
-                          onChange={(e) => setNewCategoryName(e.target.value)}
-                          placeholder="Enter category name"
-                        />
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setIsNewCategoryDialogOpen(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={handleAddCustomCategory}
-                      >
-                        Add Category
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </div>
+            <CategorySelector
+              value={category}
+              onChange={setCategory}
+            />
           </div>
 
           <div className="space-y-2">
