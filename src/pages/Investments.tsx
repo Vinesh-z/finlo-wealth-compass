@@ -5,7 +5,9 @@ import {
   FixedDeposit, 
   ProvidentFund, 
   PreciousMetal, 
-  Insurance
+  Insurance,
+  InvestmentType,
+  PreciousMetal as PreciousMetalType 
 } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { InvestmentForm } from "@/components/investment-form";
@@ -79,7 +81,7 @@ function Investments() {
     const transformedData = data.map(item => ({
       id: item.id,
       name: item.name,
-      type: item.type as Investment['type'],
+      type: item.type as InvestmentType,
       initialValue: Number(item.initial_value),
       currentValue: Number(item.current_value),
       purchaseDate: new Date(item.purchase_date),
@@ -156,9 +158,9 @@ function Investments() {
     } else {
       const transformedPMData = pmData.map(item => ({
         id: item.id,
-        type: item.type as PreciousMetalType,
+        type: item.type as PreciousMetalType['type'],
         quantity: Number(item.quantity),
-        unit: item.unit as PreciousMetalUnit,
+        unit: item.unit as PreciousMetalType['unit'],
         purchasePricePerUnit: Number(item.purchase_price_per_unit),
         purchaseDate: new Date(item.purchase_date),
         notes: item.notes || ''
@@ -187,7 +189,7 @@ function Investments() {
         provider: item.provider,
         policyNumber: item.policy_number,
         premiumAmount: item.premium_amount ? Number(item.premium_amount) : undefined,
-        premiumFrequency: item.premium_frequency as InsurancePremiumFrequency | undefined,
+        premiumFrequency: item.premium_frequency as Insurance['premiumFrequency'],
         startDate: new Date(item.start_date),
         expiryDate: item.expiry_date ? new Date(item.expiry_date) : undefined,
         notes: item.notes || ''
@@ -226,7 +228,7 @@ function Investments() {
       const newInvestment: Investment = {
         id: data.id,
         name: data.name,
-        type: data.type as Investment['type'],
+        type: data.type as InvestmentType,
         initialValue: Number(data.initial_value),
         currentValue: Number(data.current_value),
         purchaseDate: new Date(data.purchase_date),
@@ -384,9 +386,9 @@ function Investments() {
 
       const newMetal: PreciousMetal = {
         id: data.id,
-        type: data.type as PreciousMetalType,
+        type: data.type as PreciousMetalType['type'],
         quantity: Number(data.quantity),
-        unit: data.unit as PreciousMetalUnit,
+        unit: data.unit as PreciousMetalType['unit'],
         purchasePricePerUnit: Number(data.purchase_price_per_unit),
         purchaseDate: new Date(data.purchase_date),
         notes: data.notes || ''
@@ -445,7 +447,7 @@ function Investments() {
         provider: data.provider,
         policyNumber: data.policy_number || undefined,
         premiumAmount: data.premium_amount ? Number(data.premium_amount) : undefined,
-        premiumFrequency: data.premium_frequency as InsurancePremiumFrequency | undefined,
+        premiumFrequency: data.premium_frequency as Insurance['premiumFrequency'],
         startDate: new Date(data.start_date),
         expiryDate: data.expiry_date ? new Date(data.expiry_date) : undefined,
         notes: data.notes || ''
@@ -465,6 +467,16 @@ function Investments() {
         variant: "destructive",
       });
     }
+  };
+
+  const handleDeleteInvestment = (id: string) => {
+    setInvestments(investments.filter(investment => investment.id !== id));
+  };
+
+  const handleUpdateInvestment = (updatedInvestment: Investment) => {
+    setInvestments(investments.map(investment => 
+      investment.id === updatedInvestment.id ? updatedInvestment : investment
+    ));
   };
 
   const calculateTotalAssetsValue = () => {
@@ -575,7 +587,11 @@ function Investments() {
         <TabsContent value="general" className="space-y-6">
           <div className="space-y-6">
             <InvestmentForm onAddInvestment={handleAddInvestment} />
-            <InvestmentList investments={investments} />
+            <InvestmentList 
+              investments={investments} 
+              onInvestmentDeleted={handleDeleteInvestment}
+              onInvestmentUpdated={handleUpdateInvestment}
+            />
           </div>
         </TabsContent>
 
