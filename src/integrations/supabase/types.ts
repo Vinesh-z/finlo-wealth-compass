@@ -9,6 +9,27 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      custom_transaction_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       fixed_deposits: {
         Row: {
           bank_name: string | null
@@ -301,6 +322,7 @@ export type Database = {
           date: string
           description: string | null
           id: string
+          is_custom_category: boolean | null
           type: string
           user_id: string
         }
@@ -311,6 +333,7 @@ export type Database = {
           date: string
           description?: string | null
           id?: string
+          is_custom_category?: boolean | null
           type: string
           user_id?: string
         }
@@ -321,6 +344,7 @@ export type Database = {
           date?: string
           description?: string | null
           id?: string
+          is_custom_category?: boolean | null
           type?: string
           user_id?: string
         }
@@ -355,7 +379,21 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      default_transaction_category:
+        | "food"
+        | "social_life"
+        | "pets"
+        | "transport"
+        | "household"
+        | "apparel"
+        | "beauty"
+        | "health"
+        | "education"
+        | "gift"
+        | "investment"
+        | "subscription"
+        | "baby"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -470,6 +508,23 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      default_transaction_category: [
+        "food",
+        "social_life",
+        "pets",
+        "transport",
+        "household",
+        "apparel",
+        "beauty",
+        "health",
+        "education",
+        "gift",
+        "investment",
+        "subscription",
+        "baby",
+        "other",
+      ],
+    },
   },
 } as const

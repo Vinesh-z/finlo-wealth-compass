@@ -1,19 +1,27 @@
 export type TransactionType = 'income' | 'expense';
 
-export type TransactionCategory = 
-  | 'food' 
-  | 'rent' 
-  | 'utilities' 
-  | 'transportation' 
-  | 'entertainment' 
-  | 'shopping' 
-  | 'healthcare'
+export type DefaultTransactionCategory = 
+  | 'food'
+  | 'social_life'
+  | 'pets'
+  | 'transport'
+  | 'household'
+  | 'apparel'
+  | 'beauty'
+  | 'health'
   | 'education'
-  | 'travel'
-  | 'salary'
-  | 'investment'
   | 'gift'
+  | 'investment'
+  | 'subscription'
+  | 'baby'
   | 'other';
+
+export interface CustomTransactionCategory {
+  id: string;
+  name: string;
+}
+
+export type TransactionCategory = DefaultTransactionCategory | string;
 
 export interface Transaction {
   id: string;
@@ -22,6 +30,7 @@ export interface Transaction {
   category: TransactionCategory;
   description: string;
   date: Date;
+  is_custom_category?: boolean;
 }
 
 export type InvestmentType = 

@@ -1,5 +1,4 @@
-
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Card, 
   CardContent, 
@@ -17,15 +16,38 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Transaction, TransactionType, TransactionCategory } from "@/types";
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Plus } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { 
+  Transaction, 
+  TransactionType, 
+  DefaultTransactionCategory,
+  CustomTransactionCategory
+} from "@/types";
+
+const DEFAULT_CATEGORIES: DefaultTransactionCategory[] = [
+  'food', 'social_life', 'pets', 'transport', 'household', 
+  'apparel', 'beauty', 'health', 'education', 'gift', 
+  'investment', 'subscription', 'baby', 'other'
+];
 
 interface TransactionFormProps {
   onAddTransaction: (transaction: {
     amount: number;
     type: TransactionType;
-    category: TransactionCategory;
+    category: string;
     description: string;
     date: Date;
+    is_custom_category: boolean;
   }) => void;
   editingTransaction?: Transaction | null;
   onEditTransaction?: (transaction: Transaction) => void;
@@ -40,9 +62,17 @@ export function TransactionForm({
 }: TransactionFormProps) {
   const [amount, setAmount] = useState("");
   const [type, setType] = useState<TransactionType>("expense");
-  const [category, setCategory] = useState<TransactionCategory>("food");
+  const [category, setCategory] = useState<string>("food");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [customCategories, setCustomCategories] = useState<CustomTransactionCategory[]>([]);
+  const [isNewCategoryDialogOpen, setIsNewCategoryDialogOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+
+  // Fetch custom categories
+  useEffect(() => {
+    fetchCustomCategories();
+  }, []);
 
   // Update form when editing transaction changes
   useEffect(() => {
@@ -55,20 +85,63 @@ export function TransactionForm({
     }
   }, [editingTransaction]);
 
-  const incomeCategories: TransactionCategory[] = [
-    "salary", "investment", "gift", "other"
-  ];
+  const fetchCustomCategories = async () => {
+    const { data, error } = await supabase
+      .from('custom_transaction_categories')
+      .select('*');
 
-  const expenseCategories: TransactionCategory[] = [
-    "food", "rent", "utilities", "transportation", 
-    "entertainment", "shopping", "healthcare", 
-    "education", "travel", "other"
-  ];
+    if (error) {
+      toast({
+        title: "Error fetching categories",
+        description: error.message,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setCustomCategories(data);
+  };
+
+  const handleAddCustomCategory = async () => {
+    if (!newCategoryName.trim()) {
+      toast({
+        title: "Error",
+        description: "Category name cannot be empty",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('custom_transaction_categories')
+      .insert({ name: newCategoryName.trim() })
+      .select()
+      .single();
+
+    if (error) {
+      toast({
+        title: "Error adding category",
+        description: error.message,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setCustomCategories([...customCategories, data]);
+    setCategory(data.name);
+    setIsNewCategoryDialogOpen(false);
+    setNewCategoryName("");
+    
+    toast({
+      title: "Success",
+      description: "New category added successfully"
+    });
+  };
 
   const resetForm = () => {
     setAmount("");
     setType("expense");
-    setCategory(type === "income" ? "salary" : "food");
+    setCategory("food");
     setDescription("");
     setDate(new Date().toISOString().slice(0, 10));
   };
@@ -77,9 +150,15 @@ export function TransactionForm({
     e.preventDefault();
     
     if (!amount || parseFloat(amount) <= 0) {
-      alert("Please enter a valid amount");
+      toast({
+        title: "Error",
+        description: "Please enter a valid amount",
+        variant: "destructive"
+      });
       return;
     }
+
+    const isCustomCategory = !DEFAULT_CATEGORIES.includes(category as DefaultTransactionCategory);
 
     if (editingTransaction && onEditTransaction) {
       onEditTransaction({
@@ -89,6 +168,7 @@ export function TransactionForm({
         category,
         description,
         date: new Date(date),
+        is_custom_category: isCustomCategory
       });
     } else {
       onAddTransaction({
@@ -97,17 +177,11 @@ export function TransactionForm({
         category,
         description,
         date: new Date(date),
+        is_custom_category: isCustomCategory
       });
     }
 
-    // Reset form
     resetForm();
-  };
-
-  const handleTypeChange = (value: TransactionType) => {
-    setType(value);
-    // Reset category when switching types
-    setCategory(value === "income" ? "salary" : "food");
   };
 
   return (
@@ -155,7 +229,7 @@ export function TransactionForm({
               <Label htmlFor="type">Type</Label>
               <Select 
                 value={type} 
-                onValueChange={(value) => handleTypeChange(value as TransactionType)}
+                onValueChange={(value) => setType(value as TransactionType)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select type" />
@@ -169,28 +243,81 @@ export function TransactionForm({
             
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
-              <Select 
-                value={category} 
-                onValueChange={(value) => setCategory(value as TransactionCategory)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {type === "income" 
-                    ? incomeCategories.map(cat => (
-                        <SelectItem key={cat} value={cat}>
-                          {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                        </SelectItem>
-                      ))
-                    : expenseCategories.map(cat => (
-                        <SelectItem key={cat} value={cat}>
-                          {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                        </SelectItem>
-                      ))
-                  }
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2">
+                <Select 
+                  value={category} 
+                  onValueChange={setCategory}
+                >
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="" disabled>Default Categories</SelectItem>
+                    {DEFAULT_CATEGORIES.map(cat => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat.split('_').map(word => 
+                          word.charAt(0).toUpperCase() + word.slice(1)
+                        ).join(' ')}
+                      </SelectItem>
+                    ))}
+                    
+                    {customCategories.length > 0 && (
+                      <>
+                        <SelectItem value="" disabled>Custom Categories</SelectItem>
+                        {customCategories.map(cat => (
+                          <SelectItem key={cat.id} value={cat.name}>
+                            {cat.name}
+                          </SelectItem>
+                        ))}
+                      </>
+                    )}
+                  </SelectContent>
+                </Select>
+                
+                <Dialog open={isNewCategoryDialogOpen} onOpenChange={setIsNewCategoryDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="shrink-0"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Add New Category</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="newCategory">Category Name</Label>
+                        <Input
+                          id="newCategory"
+                          value={newCategoryName}
+                          onChange={(e) => setNewCategoryName(e.target.value)}
+                          placeholder="Enter category name"
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setIsNewCategoryDialogOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={handleAddCustomCategory}
+                      >
+                        Add Category
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
           </div>
 
