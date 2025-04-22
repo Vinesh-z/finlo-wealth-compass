@@ -95,11 +95,12 @@ export function TransactionListMobile({
         return (
           <div key={dateKey}>
             {/* Date header row */}
-            <div className="flex items-center mb-2">
+            <div className="flex items-center mb-3">
               {/* Modern date display */}
               <div className="
                 flex flex-col items-center justify-center
-                p-2 w-14 rounded-xl border border-neutral-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm
+                p-2 w-14 rounded-xl border border-neutral-200/80 dark:border-zinc-800 
+                bg-white dark:bg-zinc-900 shadow-sm
                 mr-3
               ">
                 <span className="text-xl font-bold text-primary">{dayNum}</span>
@@ -135,8 +136,7 @@ export function TransactionListMobile({
                     <div
                       className={`
                         flex items-center gap-3 rounded-2xl p-4 mt-0
-                        bg-white/90 border border-neutral-100 shadow-sm
-                        dark:bg-[#272636] dark:border-zinc-800
+                        bg-white dark:bg-[#272636] border border-neutral-200 dark:border-zinc-800 shadow-sm
                       `}
                     >
                       <span className="text-2xl min-w-[36px] text-center">{getCategoryIcon(tx.category)}</span>

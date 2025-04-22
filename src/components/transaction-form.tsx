@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { 
   Card, 
   CardContent, 
@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { TransactionType, TransactionCategory } from "@/types";
+import { Transaction, TransactionType, TransactionCategory } from "@/types";
 
 interface TransactionFormProps {
   onAddTransaction: (transaction: {
@@ -27,14 +27,33 @@ interface TransactionFormProps {
     description: string;
     date: Date;
   }) => void;
+  editingTransaction?: Transaction | null;
+  onEditTransaction?: (transaction: Transaction) => void;
+  onCancelEdit?: () => void;
 }
 
-export function TransactionForm({ onAddTransaction }: TransactionFormProps) {
+export function TransactionForm({ 
+  onAddTransaction, 
+  editingTransaction = null, 
+  onEditTransaction, 
+  onCancelEdit 
+}: TransactionFormProps) {
   const [amount, setAmount] = useState("");
   const [type, setType] = useState<TransactionType>("expense");
   const [category, setCategory] = useState<TransactionCategory>("food");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+
+  // Update form when editing transaction changes
+  useEffect(() => {
+    if (editingTransaction) {
+      setAmount(editingTransaction.amount.toString());
+      setType(editingTransaction.type);
+      setCategory(editingTransaction.category);
+      setDescription(editingTransaction.description || "");
+      setDate(new Date(editingTransaction.date).toISOString().slice(0, 10));
+    }
+  }, [editingTransaction]);
 
   const incomeCategories: TransactionCategory[] = [
     "salary", "investment", "gift", "other"
@@ -46,6 +65,14 @@ export function TransactionForm({ onAddTransaction }: TransactionFormProps) {
     "education", "travel", "other"
   ];
 
+  const resetForm = () => {
+    setAmount("");
+    setType("expense");
+    setCategory(type === "income" ? "salary" : "food");
+    setDescription("");
+    setDate(new Date().toISOString().slice(0, 10));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -54,20 +81,27 @@ export function TransactionForm({ onAddTransaction }: TransactionFormProps) {
       return;
     }
 
-    onAddTransaction({
-      amount: parseFloat(amount),
-      type,
-      category,
-      description,
-      date: new Date(date),
-    });
+    if (editingTransaction && onEditTransaction) {
+      onEditTransaction({
+        ...editingTransaction,
+        amount: parseFloat(amount),
+        type,
+        category,
+        description,
+        date: new Date(date),
+      });
+    } else {
+      onAddTransaction({
+        amount: parseFloat(amount),
+        type,
+        category,
+        description,
+        date: new Date(date),
+      });
+    }
 
     // Reset form
-    setAmount("");
-    setType("expense");
-    setCategory(type === "income" ? "salary" : "food");
-    setDescription("");
-    setDate(new Date().toISOString().slice(0, 10));
+    resetForm();
   };
 
   const handleTypeChange = (value: TransactionType) => {
@@ -79,7 +113,7 @@ export function TransactionForm({ onAddTransaction }: TransactionFormProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Add Transaction</CardTitle>
+        <CardTitle>{editingTransaction ? "Edit Transaction" : "Add Transaction"}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -170,9 +204,17 @@ export function TransactionForm({ onAddTransaction }: TransactionFormProps) {
             />
           </div>
 
-          <Button type="submit" className="w-full">
-            Add Transaction
-          </Button>
+          <div className="flex gap-3">
+            <Button type="submit" className="flex-1">
+              {editingTransaction ? "Update" : "Add"} Transaction
+            </Button>
+            
+            {editingTransaction && onCancelEdit && (
+              <Button type="button" variant="outline" onClick={onCancelEdit}>
+                Cancel
+              </Button>
+            )}
+          </div>
         </form>
       </CardContent>
     </Card>
