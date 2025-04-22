@@ -31,9 +31,33 @@ function Investments() {
   const [providentFunds, setProvidentFunds] = useState<ProvidentFund[]>([]);
   const [preciousMetals, setPreciousMetals] = useState<PreciousMetal[]>([]);
   const [insurances, setInsurances] = useState<Insurance[]>([]);
+  const [user, setUser] = useState<{ id: string } | null>(null);
 
   useEffect(() => {
-    fetchInvestments();
+    const getUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
+        fetchInvestments();
+      } else {
+        window.location.href = '/auth';
+      }
+    };
+    
+    getUser();
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user || null);
+        if (session?.user) {
+          fetchInvestments();
+        } else {
+          window.location.href = '/auth';
+        }
+      }
+    );
+    
+    return () => subscription.unsubscribe();
   }, []);
 
   async function fetchInvestments() {
@@ -66,17 +90,27 @@ function Investments() {
   }
 
   const handleAddInvestment = async (investment: Omit<Investment, "id">) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to add investments.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     try {
       const { data, error } = await supabase
         .from('investments')
-        .insert([{
+        .insert({
           name: investment.name,
           type: investment.type,
           initial_value: investment.initialValue,
           current_value: investment.currentValue,
           purchase_date: investment.purchaseDate.toISOString().split('T')[0],
-          notes: investment.notes
-        }])
+          notes: investment.notes,
+          user_id: user.id
+        })
         .select()
         .single();
 
