@@ -87,6 +87,113 @@ function Investments() {
     }));
 
     setInvestments(transformedData);
+
+    // Fetch fixed deposits
+    const { data: fdData, error: fdError } = await supabase
+      .from('fixed_deposits')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (fdError) {
+      console.error('Error fetching fixed deposits:', fdError);
+      toast({
+        title: "Error",
+        description: "Failed to load fixed deposits. Please try again.",
+        variant: "destructive",
+      });
+    } else {
+      const transformedFDData = fdData.map(item => ({
+        id: item.id,
+        name: item.name,
+        principalAmount: Number(item.principal_amount),
+        interestRate: Number(item.interest_rate),
+        startDate: new Date(item.start_date),
+        maturityDate: new Date(item.maturity_date),
+        bankName: item.bank_name || '',
+        notes: item.notes || ''
+      }));
+      setFixedDeposits(transformedFDData);
+    }
+
+    // Fetch provident funds
+    const { data: pfData, error: pfError } = await supabase
+      .from('provident_funds')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (pfError) {
+      console.error('Error fetching provident funds:', pfError);
+      toast({
+        title: "Error",
+        description: "Failed to load provident funds. Please try again.",
+        variant: "destructive",
+      });
+    } else {
+      const transformedPFData = pfData.map(item => ({
+        id: item.id,
+        name: item.name,
+        currentBalance: Number(item.current_balance),
+        interestRate: Number(item.interest_rate),
+        startDate: new Date(item.start_date),
+        notes: item.notes || ''
+      }));
+      setProvidentFunds(transformedPFData);
+    }
+
+    // Fetch precious metals
+    const { data: pmData, error: pmError } = await supabase
+      .from('precious_metals')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (pmError) {
+      console.error('Error fetching precious metals:', pmError);
+      toast({
+        title: "Error",
+        description: "Failed to load precious metals. Please try again.",
+        variant: "destructive",
+      });
+    } else {
+      const transformedPMData = pmData.map(item => ({
+        id: item.id,
+        type: item.type as PreciousMetalType,
+        quantity: Number(item.quantity),
+        unit: item.unit as PreciousMetalUnit,
+        purchasePricePerUnit: Number(item.purchase_price_per_unit),
+        purchaseDate: new Date(item.purchase_date),
+        notes: item.notes || ''
+      }));
+      setPreciousMetals(transformedPMData);
+    }
+
+    // Fetch insurance policies
+    const { data: insData, error: insError } = await supabase
+      .from('insurance')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (insError) {
+      console.error('Error fetching insurance:', insError);
+      toast({
+        title: "Error",
+        description: "Failed to load insurance policies. Please try again.",
+        variant: "destructive",
+      });
+    } else {
+      const transformedInsData = insData.map(item => ({
+        id: item.id,
+        name: item.name,
+        type: item.type,
+        provider: item.provider,
+        policyNumber: item.policy_number,
+        premiumAmount: item.premium_amount ? Number(item.premium_amount) : undefined,
+        premiumFrequency: item.premium_frequency as InsurancePremiumFrequency | undefined,
+        startDate: new Date(item.start_date),
+        expiryDate: item.expiry_date ? new Date(item.expiry_date) : undefined,
+        notes: item.notes || ''
+      }));
+      setInsurances(transformedInsData);
+    }
   }
 
   const handleAddInvestment = async (investment: Omit<Investment, "id">) => {
@@ -142,41 +249,222 @@ function Investments() {
     }
   };
 
-  const handleAddFixedDeposit = (deposit: Omit<FixedDeposit, "id">) => {
-    const newDeposit: FixedDeposit = {
-      id: Math.random().toString(36).substring(2, 11),
-      ...deposit,
-    };
-    setFixedDeposits([newDeposit, ...fixedDeposits]);
-    toast({
-      title: "Fixed Deposit Added",
-      description: `${deposit.name} has been added to your deposits.`,
-      duration: 3000,
-    });
+  const handleAddFixedDeposit = async (deposit: Omit<FixedDeposit, "id">) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to add fixed deposits.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('fixed_deposits')
+        .insert({
+          name: deposit.name,
+          principal_amount: deposit.principalAmount,
+          interest_rate: deposit.interestRate,
+          start_date: deposit.startDate.toISOString().split('T')[0],
+          maturity_date: deposit.maturityDate.toISOString().split('T')[0],
+          bank_name: deposit.bankName,
+          notes: deposit.notes,
+          user_id: user.id
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newDeposit: FixedDeposit = {
+        id: data.id,
+        name: data.name,
+        principalAmount: Number(data.principal_amount),
+        interestRate: Number(data.interest_rate),
+        startDate: new Date(data.start_date),
+        maturityDate: new Date(data.maturity_date),
+        bankName: data.bank_name || '',
+        notes: data.notes || ''
+      };
+
+      setFixedDeposits([newDeposit, ...fixedDeposits]);
+      toast({
+        title: "Fixed Deposit Added",
+        description: `${deposit.name} has been added to your deposits.`,
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error adding fixed deposit:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add fixed deposit. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleAddProvidentFund = (fund: Omit<ProvidentFund, "id">) => {
-    const newFund: ProvidentFund = {
-      id: Math.random().toString(36).substring(2, 11),
-      ...fund,
-    };
-    setProvidentFunds([newFund, ...providentFunds]);
+  const handleAddProvidentFund = async (fund: Omit<ProvidentFund, "id">) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to add provident funds.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('provident_funds')
+        .insert({
+          name: fund.name,
+          current_balance: fund.currentBalance,
+          interest_rate: fund.interestRate,
+          start_date: fund.startDate.toISOString().split('T')[0],
+          notes: fund.notes,
+          user_id: user.id
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newFund: ProvidentFund = {
+        id: data.id,
+        name: data.name,
+        currentBalance: Number(data.current_balance),
+        interestRate: Number(data.interest_rate),
+        startDate: new Date(data.start_date),
+        notes: data.notes || ''
+      };
+
+      setProvidentFunds([newFund, ...providentFunds]);
+      toast({
+        title: "Provident Fund Added",
+        description: `${fund.name} has been added to your funds.`,
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error adding provident fund:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add provident fund. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleAddPreciousMetal = (metal: Omit<PreciousMetal, "id">) => {
-    const newMetal: PreciousMetal = {
-      id: Math.random().toString(36).substring(2, 11),
-      ...metal,
-    };
-    setPreciousMetals([newMetal, ...preciousMetals]);
+  const handleAddPreciousMetal = async (metal: Omit<PreciousMetal, "id">) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to add precious metals.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('precious_metals')
+        .insert({
+          type: metal.type,
+          quantity: metal.quantity,
+          unit: metal.unit,
+          purchase_price_per_unit: metal.purchasePricePerUnit,
+          purchase_date: metal.purchaseDate.toISOString().split('T')[0],
+          notes: metal.notes,
+          user_id: user.id
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newMetal: PreciousMetal = {
+        id: data.id,
+        type: data.type as PreciousMetalType,
+        quantity: Number(data.quantity),
+        unit: data.unit as PreciousMetalUnit,
+        purchasePricePerUnit: Number(data.purchase_price_per_unit),
+        purchaseDate: new Date(data.purchase_date),
+        notes: data.notes || ''
+      };
+
+      setPreciousMetals([newMetal, ...preciousMetals]);
+      toast({
+        title: "Precious Metal Added",
+        description: `${metal.quantity} ${metal.unit}(s) of ${metal.type} has been added.`,
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error adding precious metal:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add precious metal. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleAddInsurance = (insurance: Omit<Insurance, "id">) => {
-    const newInsurance: Insurance = {
-      id: Math.random().toString(36).substring(2, 11),
-      ...insurance,
-    };
-    setInsurances([newInsurance, ...insurances]);
+  const handleAddInsurance = async (insurance: Omit<Insurance, "id">) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to add insurance policies.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('insurance')
+        .insert({
+          name: insurance.name,
+          type: insurance.type,
+          provider: insurance.provider,
+          policy_number: insurance.policyNumber,
+          premium_amount: insurance.premiumAmount,
+          premium_frequency: insurance.premiumFrequency,
+          start_date: insurance.startDate.toISOString().split('T')[0],
+          expiry_date: insurance.expiryDate?.toISOString().split('T')[0],
+          notes: insurance.notes,
+          user_id: user.id
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newInsurance: Insurance = {
+        id: data.id,
+        name: data.name,
+        type: data.type,
+        provider: data.provider,
+        policyNumber: data.policy_number || undefined,
+        premiumAmount: data.premium_amount ? Number(data.premium_amount) : undefined,
+        premiumFrequency: data.premium_frequency as InsurancePremiumFrequency | undefined,
+        startDate: new Date(data.start_date),
+        expiryDate: data.expiry_date ? new Date(data.expiry_date) : undefined,
+        notes: data.notes || ''
+      };
+
+      setInsurances([newInsurance, ...insurances]);
+      toast({
+        title: "Insurance Policy Added",
+        description: `${insurance.name} has been added to your policies.`,
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error adding insurance:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add insurance policy. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const calculateTotalAssetsValue = () => {
