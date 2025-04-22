@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Investment, 
@@ -8,6 +7,7 @@ import {
   PreciousMetal, 
   Insurance
 } from "@/types";
+import { supabase } from "@/integrations/supabase/client";
 import { InvestmentForm } from "@/components/investment-form";
 import { InvestmentList } from "@/components/investment-list";
 import { InvestmentSummary } from "@/components/investment-summary";
@@ -32,17 +32,80 @@ function Investments() {
   const [preciousMetals, setPreciousMetals] = useState<PreciousMetal[]>([]);
   const [insurances, setInsurances] = useState<Insurance[]>([]);
 
-  const handleAddInvestment = (investment: Omit<Investment, "id">) => {
-    const newInvestment: Investment = {
-      id: Math.random().toString(36).substring(2, 11),
-      ...investment,
-    };
-    setInvestments([newInvestment, ...investments]);
-    toast({
-      title: "Investment Added",
-      description: `${investment.name} has been added to your portfolio.`,
-      duration: 3000,
-    });
+  useEffect(() => {
+    fetchInvestments();
+  }, []);
+
+  async function fetchInvestments() {
+    const { data, error } = await supabase
+      .from('investments')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching investments:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load investments. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const transformedData = data.map(item => ({
+      id: item.id,
+      name: item.name,
+      type: item.type as Investment['type'],
+      initialValue: Number(item.initial_value),
+      currentValue: Number(item.current_value),
+      purchaseDate: new Date(item.purchase_date),
+      notes: item.notes || ''
+    }));
+
+    setInvestments(transformedData);
+  }
+
+  const handleAddInvestment = async (investment: Omit<Investment, "id">) => {
+    try {
+      const { data, error } = await supabase
+        .from('investments')
+        .insert([{
+          name: investment.name,
+          type: investment.type,
+          initial_value: investment.initialValue,
+          current_value: investment.currentValue,
+          purchase_date: investment.purchaseDate.toISOString().split('T')[0],
+          notes: investment.notes
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newInvestment: Investment = {
+        id: data.id,
+        name: data.name,
+        type: data.type as Investment['type'],
+        initialValue: Number(data.initial_value),
+        currentValue: Number(data.current_value),
+        purchaseDate: new Date(data.purchase_date),
+        notes: data.notes || ''
+      };
+
+      setInvestments([newInvestment, ...investments]);
+      toast({
+        title: "Investment Added",
+        description: `${investment.name} has been added to your portfolio.`,
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error adding investment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add investment. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleAddFixedDeposit = (deposit: Omit<FixedDeposit, "id">) => {
@@ -95,7 +158,6 @@ function Investments() {
     }, 0);
     const pfValue = providentFunds.reduce((sum, pf) => sum + pf.currentBalance, 0);
     const pmValue = preciousMetals.reduce((sum, metal) => {
-      // Fix: Changed from purchase_price_per_unit to purchasePricePerUnit
       return sum + (metal.quantity * metal.purchasePricePerUnit);
     }, 0);
     return investmentsValue + fdValue + pfValue + pmValue;
@@ -189,7 +251,6 @@ function Investments() {
         </TabsList>
 
         <TabsContent value="general" className="space-y-6">
-          {/* Stacked vertically for less cramping */}
           <div className="space-y-6">
             <InvestmentForm onAddInvestment={handleAddInvestment} />
             <InvestmentList investments={investments} />
