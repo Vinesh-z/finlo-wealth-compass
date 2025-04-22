@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { 
   Card, 
@@ -112,9 +113,25 @@ export function TransactionForm({
       return;
     }
 
+    // Get current user session
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to add custom categories",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Add user_id to the insert object
     const { data, error } = await supabase
       .from('custom_transaction_categories')
-      .insert({ name: newCategoryName.trim() })
+      .insert({ 
+        name: newCategoryName.trim(),
+        user_id: session.user.id
+      })
       .select()
       .single();
 
