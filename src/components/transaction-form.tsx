@@ -13,7 +13,10 @@ import {
   SelectContent, 
   SelectItem, 
   SelectTrigger, 
-  SelectValue 
+  SelectValue,
+  SelectSeparator,
+  SelectLabel,
+  SelectGroup
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -269,23 +272,28 @@ export function TransactionForm({
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="" disabled>Default Categories</SelectItem>
-                    {DEFAULT_CATEGORIES.map(cat => (
-                      <SelectItem key={cat} value={cat}>
-                        {cat.split('_').map(word => 
-                          word.charAt(0).toUpperCase() + word.slice(1)
-                        ).join(' ')}
-                      </SelectItem>
-                    ))}
+                    <SelectGroup>
+                      <SelectLabel>Default Categories</SelectLabel>
+                      {DEFAULT_CATEGORIES.map(cat => (
+                        <SelectItem key={cat} value={cat}>
+                          {cat.split('_').map(word => 
+                            word.charAt(0).toUpperCase() + word.slice(1)
+                          ).join(' ')}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
                     
                     {customCategories.length > 0 && (
                       <>
-                        <SelectItem value="" disabled>Custom Categories</SelectItem>
-                        {customCategories.map(cat => (
-                          <SelectItem key={cat.id} value={cat.name}>
-                            {cat.name}
-                          </SelectItem>
-                        ))}
+                        <SelectSeparator />
+                        <SelectGroup>
+                          <SelectLabel>Custom Categories</SelectLabel>
+                          {customCategories.map(cat => (
+                            <SelectItem key={cat.id} value={cat.name}>
+                              {cat.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
                       </>
                     )}
                   </SelectContent>
