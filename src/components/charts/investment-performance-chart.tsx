@@ -1,3 +1,4 @@
+
 import { 
   LineChart, 
   Line, 
@@ -83,7 +84,7 @@ export function InvestmentPerformanceChart({ investments }: InvestmentPerformanc
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
-                <YAxis yAxisId="left" orientation="left" tickFormatter={(value) => `$${value}`} />
+                <YAxis yAxisId="left" orientation="left" tickFormatter={(value) => formatCurrency(value)} />
                 <YAxis yAxisId="right" orientation="right" tickFormatter={(value) => `${value}%`} />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />

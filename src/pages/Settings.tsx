@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   Card, 
@@ -270,6 +269,9 @@ function Settings() {
                   <SelectItem value="GBP">British Pound (£)</SelectItem>
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Note: Currently, the application is configured to use INR as the default currency.
+              </p>
             </div>
             
             <Separator />
