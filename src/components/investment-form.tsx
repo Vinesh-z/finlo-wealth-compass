@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   Card, 
@@ -134,7 +133,7 @@ export function InvestmentForm({ onAddInvestment }: InvestmentFormProps) {
               <Label htmlFor="initialValue">Initial Value</Label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                  $
+                  ₹
                 </span>
                 <Input
                   id="initialValue"
@@ -154,7 +153,7 @@ export function InvestmentForm({ onAddInvestment }: InvestmentFormProps) {
               <Label htmlFor="currentValue">Current Value (Optional)</Label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                  $
+                  ₹
                 </span>
                 <Input
                   id="currentValue"

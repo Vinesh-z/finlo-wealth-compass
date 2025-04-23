@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   Card, 
@@ -47,7 +46,6 @@ export function TransactionForm({
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
 
-  // Update form when editing transaction changes
   useEffect(() => {
     if (editingTransaction) {
       setAmount(editingTransaction.amount.toString());
@@ -113,7 +111,7 @@ export function TransactionForm({
               <Label htmlFor="amount">Amount</Label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                  $
+                  ₹
                 </span>
                 <Input
                   id="amount"
