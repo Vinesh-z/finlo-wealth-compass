@@ -1,8 +1,23 @@
+
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Transaction, TransactionCategory } from "@/types";
 import { formatCurrency } from "@/utils/format";
 import { calculateCategoryTotal } from "@/utils/calculations";
+
+// Use a new palette (3rd row in your palette image for categorical distinction)
+const COLORS = [
+  "#DB4CB2", // Magenta
+  "#EB548C", // Pink
+  "#EA7369", // Coral
+  "#F0A58F", // Peach
+  "#FCEAE6", // Soft Warm
+  "#820401", // Deep Red
+  "#C02323", // Red
+  "#DE542C", // Orange
+  "#EF7E32", // Bright Orange
+  "#EE9A3A", // Golden Yellow
+];
 
 interface ExpensePieChartProps {
   transactions: Transaction[];
@@ -25,22 +40,8 @@ export function ExpensePieChart({ transactions }: ExpensePieChartProps) {
       name: category.charAt(0).toUpperCase() + category.slice(1),
       value: total,
     };
-  }).filter(item => item.value > 0) // Remove zero-value categories
-    .sort((a, b) => b.value - a.value); // Sort by value, descending
-
-  // Aesthetic color palette for expense categories
-  const COLORS = [
-    "#8B5CF6",  // Vivid Purple
-    "#D946EF",  // Magenta Pink
-    "#F97316",  // Bright Orange
-    "#0EA5E9",  // Ocean Blue
-    "#06b6d4",  // Cyan
-    "#10b981",  // Emerald
-    "#84cc16",  // Lime Green
-    "#f59e0b",  // Amber
-    "#ec4899",  // Pink
-    "#f43f5e",  // Rose
-  ];
+  }).filter(item => item.value > 0)
+    .sort((a, b) => b.value - a.value);
 
   // Custom tooltip
   const CustomTooltip = ({ active, payload }: any) => {

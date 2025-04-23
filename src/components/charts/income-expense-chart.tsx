@@ -1,3 +1,4 @@
+
 import { 
   BarChart, 
   Bar, 
@@ -11,6 +12,13 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Transaction } from "@/types";
 import { formatCurrency } from "@/utils/format";
+
+// New color palette from provided image
+const BAR_COLORS = {
+  income: "#6DF002",     // bright mint green
+  expense: "#EA7369",    // coral
+  savings: "#142459"     // deep navy blue
+};
 
 interface IncomeExpenseChartProps {
   transactions: Transaction[];
@@ -73,15 +81,15 @@ export function IncomeExpenseChart({ transactions }: IncomeExpenseChartProps) {
           <p className="font-medium">{label}</p>
           <div className="space-y-1 mt-1">
             <p>
-              <span className="inline-block w-3 h-3 bg-[#10B981] mr-2 rounded-full"></span>
+              <span className="inline-block w-3 h-3" style={{backgroundColor: BAR_COLORS.income}}></span>
               <span className="font-medium">Income:</span> {formatCurrency(payload[0].value)}
             </p>
             <p>
-              <span className="inline-block w-3 h-3 bg-[#EF4444] mr-2 rounded-full"></span>
+              <span className="inline-block w-3 h-3" style={{backgroundColor: BAR_COLORS.expense}}></span>
               <span className="font-medium">Expense:</span> {formatCurrency(payload[1].value)}
             </p>
             <p>
-              <span className="inline-block w-3 h-3 bg-[#3B82F6] mr-2 rounded-full"></span>
+              <span className="inline-block w-3 h-3" style={{backgroundColor: BAR_COLORS.savings}}></span>
               <span className="font-medium">Savings:</span> {formatCurrency(payload[2].value)}
             </p>
           </div>
@@ -104,14 +112,14 @@ export function IncomeExpenseChart({ transactions }: IncomeExpenseChartProps) {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="month" />
                 <YAxis 
-                  tickFormatter={(value) => `$${value}`} 
+                  tickFormatter={(value) => `₹${value}`} 
                   width={80}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
-                <Bar dataKey="income" name="Income" fill="#10B981" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="expense" name="Expense" fill="#EF4444" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="savings" name="Savings" fill="#3B82F6" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="income" name="Income" fill={BAR_COLORS.income} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="expense" name="Expense" fill={BAR_COLORS.expense} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="savings" name="Savings" fill={BAR_COLORS.savings} radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

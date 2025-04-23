@@ -3,14 +3,12 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recha
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Investment } from "@/types";
 import { formatCurrency } from "@/utils/format";
-
-// Utility types for new props
 import { FixedDeposit, ProvidentFund, PreciousMetal } from "@/types";
 
 // Add new properties for all asset types
 interface InvestmentPortfolioChartProps {
   investments: Investment[];
-  fixedDeposits?: FixedDeposit[];  // optional for backwards compatibility
+  fixedDeposits?: FixedDeposit[];
   providentFunds?: ProvidentFund[];
   preciousMetals?: PreciousMetal[];
 }
@@ -63,12 +61,12 @@ export function InvestmentPortfolioChart({
   // Calculate total to show percent
   const totalPortfolioValue = data.reduce((acc, item) => acc + item.value, 0);
 
-  // Softer, aesthetic palette (good for 4+ segments)
+  // Use the new palette (first row in your image)
   const COLORS = [
-    "#F2FCE2", // Soft Green
-    "#E5DEFF", // Soft Purple
-    "#D3E4FD", // Soft Blue
-    "#FFDEE2"  // Soft Pink
+    "#142459", // General Investments (Blue Navy)
+    "#176BA0", // Fixed Deposits (Blue)
+    "#19AADE", // Provident Fund (Sky Blue)
+    "#1AC9E6", // Precious Metals (Cyan)
   ];
 
   // Custom tooltip using INR style
