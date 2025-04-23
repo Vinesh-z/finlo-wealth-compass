@@ -2,65 +2,85 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Investment } from "@/types";
-import { formatCurrency, formatPercent } from "@/utils/format";
+import { formatCurrency } from "@/utils/format";
 
+// Utility types for new props
+import { FixedDeposit, ProvidentFund, PreciousMetal } from "@/types";
+
+// Add new properties for all asset types
 interface InvestmentPortfolioChartProps {
   investments: Investment[];
+  fixedDeposits?: FixedDeposit[];  // optional for backwards compatibility
+  providentFunds?: ProvidentFund[];
+  preciousMetals?: PreciousMetal[];
 }
 
-export function InvestmentPortfolioChart({ investments }: InvestmentPortfolioChartProps) {
-  // Group investments by type
-  const portfolioByType = investments.reduce((acc, investment) => {
-    if (!acc[investment.type]) {
-      acc[investment.type] = 0;
-    }
-    acc[investment.type] += investment.currentValue;
-    return acc;
-  }, {} as Record<string, number>);
-  
-  // Convert to array for chart
-  const data = Object.entries(portfolioByType)
-    .map(([type, value]) => ({
-      name: type.split('_').map(word => 
-        word.charAt(0).toUpperCase() + word.slice(1)
-      ).join(' '),
-      value,
-    }))
-    .filter(item => item.value > 0) // Remove zero-value types
-    .sort((a, b) => b.value - a.value); // Sort by value, descending
+export function InvestmentPortfolioChart({ 
+  investments, 
+  fixedDeposits = [],
+  providentFunds = [],
+  preciousMetals = []
+}: InvestmentPortfolioChartProps) {
+  // Helper: fixed deposits maturity value
+  const getFDMaturity = (deposit: FixedDeposit) => {
+    const principal = deposit.principalAmount;
+    const rate = deposit.interestRate / 100;
+    const timeInYears = 
+      (deposit.maturityDate.getTime() - deposit.startDate.getTime()) / 
+      (365 * 24 * 60 * 60 * 1000);
+    return principal * Math.pow(1 + rate, timeInYears);
+  };
 
-  // Calculate total portfolio value
-  const totalPortfolioValue = investments.reduce(
-    (total, investment) => total + investment.currentValue, 
-    0
-  );
+  // Helper: total provident fund value
+  const getPFValue = (fund: ProvidentFund) => fund.currentBalance;
 
-  // Custom colors
-  const COLORS = [
-    "#3b82f6", // Blue (Primary)
-    "#6366f1", // Indigo
-    "#8b5cf6", // Violet
-    "#d946ef", // Fuchsia
-    "#ec4899", // Pink
-    "#f43f5e", // Rose
-    "#ef4444", // Red
-    "#f97316", // Orange
-    "#f59e0b", // Amber
-    "#84cc16", // Lime
-    "#10b981", // Emerald
-    "#06b6d4", // Cyan
+  // Helper: total precious metals value
+  const getPMValue = (metal: PreciousMetal) => metal.quantity * metal.purchasePricePerUnit;
+
+  // Group and sum values for each asset category for the chart
+  const assetTypes = [
+    {
+      label: "General Investments",
+      value: investments.reduce((acc, i) => acc + i.currentValue, 0),
+    },
+    {
+      label: "Fixed Deposits",
+      value: fixedDeposits.reduce((acc, fd) => acc + getFDMaturity(fd), 0),
+    },
+    {
+      label: "Provident Funds",
+      value: providentFunds.reduce((acc, pf) => acc + getPFValue(pf), 0),
+    },
+    {
+      label: "Precious Metals",
+      value: preciousMetals.reduce((acc, pm) => acc + getPMValue(pm), 0),
+    },
   ];
 
-  // Custom tooltip
+  // Filter to non-zero for cleanliness
+  const data = assetTypes.filter(asset => asset.value > 0);
+
+  // Calculate total to show percent
+  const totalPortfolioValue = data.reduce((acc, item) => acc + item.value, 0);
+
+  // Softer, aesthetic palette (good for 4+ segments)
+  const COLORS = [
+    "#F2FCE2", // Soft Green
+    "#E5DEFF", // Soft Purple
+    "#D3E4FD", // Soft Blue
+    "#FFDEE2"  // Soft Pink
+  ];
+
+  // Custom tooltip using INR style
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
-      const percentage = ((payload[0].value / totalPortfolioValue) * 100).toFixed(1);
-      
+      const { name, value } = payload[0];
+      const percent = ((value / totalPortfolioValue) * 100).toFixed(1);
       return (
         <div className="bg-white p-3 rounded-md shadow-md border">
-          <p className="font-medium">{payload[0].name}</p>
-          <p className="text-investment font-semibold">{formatCurrency(payload[0].value)}</p>
-          <p className="text-sm text-muted-foreground">{percentage}% of portfolio</p>
+          <p className="font-medium">{name}</p>
+          <p className="text-investment font-semibold">{formatCurrency(value)}</p>
+          <p className="text-sm text-muted-foreground">{percent}% of portfolio</p>
         </div>
       );
     }
@@ -85,6 +105,10 @@ export function InvestmentPortfolioChart({ investments }: InvestmentPortfolioCha
                   outerRadius={120}
                   fill="#8884d8"
                   dataKey="value"
+                  nameKey="label"
+                  label={({ name, percent }) =>
+                    `${name}: ${(percent * 100).toFixed(1)}%`
+                  }
                 >
                   {data.map((entry, index) => (
                     <Cell 
