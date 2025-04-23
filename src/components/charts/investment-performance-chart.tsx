@@ -1,11 +1,9 @@
-
 import { 
   LineChart, 
   Line, 
   XAxis, 
   YAxis, 
-  CartesianGrid,
-
+  CartesianGrid, 
   Tooltip, 
   Legend, 
   ResponsiveContainer 
@@ -50,16 +48,16 @@ export function InvestmentPerformanceChart({ investments }: InvestmentPerformanc
           <p className="font-medium">{label}</p>
           <div className="space-y-1 mt-1">
             <p>
-              <span className="inline-block w-3 h-3 bg-neutral mr-2 rounded-full"></span>
+              <span className="inline-block w-3 h-3 bg-[#6b7280] mr-2 rounded-full"></span>
               <span className="font-medium">Initial:</span> {formatCurrency(payload[0].value)}
             </p>
             <p>
-              <span className="inline-block w-3 h-3 bg-investment mr-2 rounded-full"></span>
+              <span className="inline-block w-3 h-3 bg-[#3b82f6] mr-2 rounded-full"></span>
               <span className="font-medium">Current:</span> {formatCurrency(payload[1].value)}
             </p>
             <p>
               <span className="font-medium">ROI:</span>{' '}
-              <span className={payload[2].value >= 0 ? "text-income" : "text-expense"}>
+              <span className={payload[2].value >= 0 ? "text-[#10b981]" : "text-[#ef4444]"}>
                 {formatPercent(payload[2].value / 100)}
               </span>
             </p>

@@ -1,4 +1,3 @@
-
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Transaction, TransactionCategory } from "@/types";
@@ -29,20 +28,18 @@ export function ExpensePieChart({ transactions }: ExpensePieChartProps) {
   }).filter(item => item.value > 0) // Remove zero-value categories
     .sort((a, b) => b.value - a.value); // Sort by value, descending
 
-  // Custom colors
+  // Aesthetic color palette for expense categories
   const COLORS = [
-    "#ef4444", // Red (Primary)
-    "#f97316", // Orange
-    "#f59e0b", // Amber
-    "#84cc16", // Lime
-    "#10b981", // Emerald
-    "#06b6d4", // Cyan
-    "#3b82f6", // Blue
-    "#6366f1", // Indigo
-    "#8b5cf6", // Violet
-    "#d946ef", // Fuchsia
-    "#ec4899", // Pink
-    "#f43f5e", // Rose
+    "#8B5CF6",  // Vivid Purple
+    "#D946EF",  // Magenta Pink
+    "#F97316",  // Bright Orange
+    "#0EA5E9",  // Ocean Blue
+    "#06b6d4",  // Cyan
+    "#10b981",  // Emerald
+    "#84cc16",  // Lime Green
+    "#f59e0b",  // Amber
+    "#ec4899",  // Pink
+    "#f43f5e",  // Rose
   ];
 
   // Custom tooltip
