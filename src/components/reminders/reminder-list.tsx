@@ -54,7 +54,7 @@ export function ReminderList({
   return <Card className="h-full">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base">Your Reminders</CardTitle>
+          
           <div className="flex items-center gap-2">
             <Button variant={filter === "all" ? "default" : "outline"} size="sm" onClick={() => setFilter("all")}>
               All
