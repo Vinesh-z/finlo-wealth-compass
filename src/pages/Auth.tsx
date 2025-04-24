@@ -1,45 +1,56 @@
 
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
+  const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleAuth = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
-      if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-        });
-        if (error) throw error;
-        toast({
-          title: "Success!",
-          description: "Please check your email to verify your account.",
-        });
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) throw error;
-        navigate("/dashboard");
-      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
+      navigate("/dashboard");
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: "Error signing in",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+      if (error) throw error;
+      toast({
+        title: "Success!",
+        description: "Check your email for the confirmation link.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error signing up",
         description: error.message,
         variant: "destructive",
       });
@@ -49,49 +60,52 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <Card className="w-[400px]">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-secondary/30">
+      <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>{isSignUp ? "Create Account" : "Welcome Back"}</CardTitle>
-          <CardDescription>
-            {isSignUp
-              ? "Sign up to start managing your finances"
-              : "Sign in to access your account"}
-          </CardDescription>
+          <h1 className="text-4xl mb-2 font-bold">Welcome to <span className="text-gradient">Zenfi</span></h1>
+          <p className="text-muted-foreground">
+            Your personal finance companion
+          </p>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleAuth} className="space-y-4">
+          <form onSubmit={handleSignIn} className="space-y-4">
             <div className="space-y-2">
               <Input
                 type="email"
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                className="w-full p-3"
                 required
               />
-            </div>
-            <div className="space-y-2">
               <Input
                 type="password"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-3"
                 required
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
-            </Button>
-            <Button
-              type="button"
-              variant="link"
-              className="w-full"
-              onClick={() => setIsSignUp(!isSignUp)}
-            >
-              {isSignUp
-                ? "Already have an account? Sign In"
-                : "Don't have an account? Sign Up"}
-            </Button>
+            <div className="space-y-2">
+              <Button
+                type="submit"
+                className="w-full button-gradient rounded-full p-6 font-medium text-lg"
+                disabled={loading}
+              >
+                {loading ? "Loading..." : "Sign In"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleSignUp}
+                className="w-full rounded-full p-6 font-medium text-lg"
+                disabled={loading}
+              >
+                Create Account
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>
