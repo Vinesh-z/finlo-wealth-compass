@@ -23,7 +23,12 @@ export function useCalendarData(selectedDate: Date | undefined) {
         .lte('date', endOfMonth.toISOString());
 
       if (error) throw error;
-      return (data || []) as Transaction[];
+      
+      // Convert date strings to Date objects to match Transaction type
+      return (data || []).map(transaction => ({
+        ...transaction,
+        date: new Date(transaction.date),
+      })) as Transaction[];
     },
   });
 

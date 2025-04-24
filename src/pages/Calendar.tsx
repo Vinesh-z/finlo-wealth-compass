@@ -12,6 +12,7 @@ import { ReminderForm } from "@/components/reminders/reminder-form";
 import { ReminderList } from "@/components/reminders/reminder-list";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import { Reminder } from "@/types";
 
 export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
