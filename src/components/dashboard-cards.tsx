@@ -4,6 +4,7 @@ import { CardStat } from "@/components/ui/card-stat";
 import { Transaction } from "@/types";
 import { formatCurrency } from "@/utils/format";
 import { calculateTotalIncome, calculateTotalExpenses, calculateSavings } from "@/utils/calculations";
+import { motion } from "framer-motion";
 
 interface DashboardCardsProps {
   transactions: Transaction[];
@@ -31,41 +32,69 @@ export function DashboardCards({ transactions, previousMonthData }: DashboardCar
   const savingsTrend = previousMonthData
     ? ((savings - previousMonthData.savings) / previousMonthData.savings) * 100
     : 0;
+    
+  // Animation variants for staggered children
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      } 
+    }
+  };
+  
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <CardStat
-        title="Total Income"
-        value={formatCurrency(totalIncome)}
-        icon={<ArrowUpRight className="h-4 w-4 text-income dark:text-income-light" />}
-        className="bg-income-light dark:bg-income/10"
-        trend={previousMonthData ? {
-          value: incomeTrend,
-          isPositive: incomeTrend >= 0
-        } : undefined}
-      />
+    <motion.div 
+      className="grid grid-cols-1 md:grid-cols-3 gap-4"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <motion.div variants={itemVariants}>
+        <CardStat
+          title="Total Income"
+          value={formatCurrency(totalIncome)}
+          icon={<ArrowUpRight className="h-5 w-5" />}
+          className="bg-income-light dark:bg-income/10"
+          trend={previousMonthData ? {
+            value: incomeTrend,
+            isPositive: incomeTrend >= 0
+          } : undefined}
+        />
+      </motion.div>
       
-      <CardStat
-        title="Total Expenses"
-        value={formatCurrency(totalExpenses)}
-        icon={<ArrowDownRight className="h-4 w-4 text-expense dark:text-expense-light" />}
-        className="bg-expense-light dark:bg-expense/10"
-        trend={previousMonthData ? {
-          value: expensesTrend,
-          isPositive: expensesTrend < 0 // For expenses, negative trend is positive
-        } : undefined}
-      />
+      <motion.div variants={itemVariants}>
+        <CardStat
+          title="Total Expenses"
+          value={formatCurrency(totalExpenses)}
+          icon={<ArrowDownRight className="h-5 w-5" />}
+          className="bg-expense-light dark:bg-expense/10"
+          trend={previousMonthData ? {
+            value: expensesTrend,
+            isPositive: expensesTrend < 0 // For expenses, negative trend is positive
+          } : undefined}
+        />
+      </motion.div>
       
-      <CardStat
-        title="Total Savings"
-        value={formatCurrency(savings)}
-        icon={<PiggyBank className="h-4 w-4 text-primary dark:text-primary-foreground" />}
-        className="bg-primary/10 dark:bg-primary/20"
-        trend={previousMonthData ? {
-          value: savingsTrend,
-          isPositive: savingsTrend >= 0
-        } : undefined}
-      />
-    </div>
+      <motion.div variants={itemVariants}>
+        <CardStat
+          title="Total Savings"
+          value={formatCurrency(savings)}
+          icon={<PiggyBank className="h-5 w-5" />}
+          className="bg-primary/10 dark:bg-primary/20"
+          trend={previousMonthData ? {
+            value: savingsTrend,
+            isPositive: savingsTrend >= 0
+          } : undefined}
+        />
+      </motion.div>
+    </motion.div>
   );
 }

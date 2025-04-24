@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -18,6 +19,15 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: ["Inter", "sans-serif"],
+				heading: ["Poppins", "sans-serif"],
+			},
+			boxShadow: {
+				card: "0 2px 8px 0 rgba(0,0,0,0.05)",
+				elevated: "0 10px 30px -5px rgba(0,0,0,0.1)",
+				soft: "0 4px 12px -2px rgba(0,0,0,0.08)",
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -53,21 +63,42 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				},
 				income: {
-          DEFAULT: '#10b981', // Green
-          light: '#d1fae5',
-        },
-        expense: {
-          DEFAULT: '#ef4444', // Red
-          light: '#fee2e2',
-        },
-        investment: {
-          DEFAULT: '#3b82f6', // Blue
-          light: '#dbeafe',
-        },
-        neutral: {
-          DEFAULT: '#6b7280', // Gray
-          light: '#f3f4f6',
-        },
+					DEFAULT: '#6DF002', // New green from palette
+					light: '#E7F8E0',
+				},
+				expense: {
+					DEFAULT: '#EA7369', // New coral from palette
+					light: '#FDEEEC',
+				},
+				investment: {
+					DEFAULT: '#19AADE', // New blue from palette
+					light: '#E3F4FB',
+				},
+				neutral: {
+					DEFAULT: '#6b7280', // Gray
+					light: '#f3f4f6',
+				},
+				chart: {
+					blue: {
+						DEFAULT: '#142459', // Navy blue
+						medium: '#176BA0', // Medium blue
+						light: '#19AADE', // Sky blue
+						lightest: '#1AC9E6', // Cyan
+					},
+					green: {
+						DEFAULT: '#6DF002', // Mint green
+						light: '#E7F8E0',
+					},
+					coral: {
+						DEFAULT: '#EA7369', // Coral
+						light: '#FDEEEC',
+					},
+					magenta: {
+						DEFAULT: '#DB4CB2', // Magenta
+						medium: '#EB548C', // Pink
+						light: '#F0A58F', // Peach
+					}
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -100,11 +131,27 @@ export default {
 					to: {
 						height: '0'
 					}
-				}
+				},
+				'fade-in': {
+					"0%": {
+						opacity: "0",
+						transform: "translateY(10px)"
+					},
+					"100%": {
+						opacity: "1",
+						transform: "translateY(0)"
+					}
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-5px)' },
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.3s ease-out',
+				'float': 'float 4s ease-in-out infinite',
 			}
 		}
 	},
