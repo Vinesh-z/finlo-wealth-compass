@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
@@ -18,6 +17,7 @@ import Investments from "./pages/Investments";
 import Notes from "./pages/Notes";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import Calendar from "./pages/Calendar";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +71,16 @@ const App = () => {
                   <PrivateRoute>
                     <Layout>
                       <Transactions />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/calendar"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <Calendar />
                     </Layout>
                   </PrivateRoute>
                 }
