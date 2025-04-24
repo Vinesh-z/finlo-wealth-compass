@@ -13,10 +13,12 @@ import { ReminderList } from "@/components/reminders/reminder-list";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { Reminder } from "@/types";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const { transactions, reminders, isLoading } = useCalendarData(selectedDate);
+  const queryClient = useQueryClient();
 
   const handleToggleComplete = async (id: string, completed: boolean) => {
     try {
@@ -31,7 +33,11 @@ export default function CalendarPage() {
         title: completed ? "Reminder completed" : "Reminder uncompleted",
         duration: 3000,
       });
+      
+      // Invalidate and refetch data
+      queryClient.invalidateQueries({ queryKey: ['reminders'] });
     } catch (error) {
+      console.error("Error updating reminder:", error);
       toast({
         title: "Error updating reminder",
         variant: "destructive",
@@ -42,27 +48,33 @@ export default function CalendarPage() {
 
   const handleAddReminder = async (reminder: Omit<Reminder, "id" | "isCompleted">) => {
     try {
-      const { error } = await supabase
+      console.log("Adding reminder:", reminder);
+      
+      const { data, error } = await supabase
         .from('reminders')
         .insert({
           title: reminder.title,
-          description: reminder.description,
+          description: reminder.description || null,
           reminder_date: reminder.reminderDate.toISOString(),
           is_completed: false,
-        });
+          user_id: (await supabase.auth.getUser()).data.user?.id
+        })
+        .select();
 
-      if (error) throw error;
-
-      toast({
-        title: "Reminder added successfully",
-        duration: 3000,
-      });
+      if (error) {
+        console.error("Supabase error:", error);
+        throw error;
+      }
+      
+      console.log("Reminder added successfully:", data);
+      
+      // Invalidate and refetch data
+      queryClient.invalidateQueries({ queryKey: ['reminders'] });
+      
+      return data;
     } catch (error) {
-      toast({
-        title: "Error adding reminder",
-        variant: "destructive",
-        duration: 3000,
-      });
+      console.error("Error adding reminder:", error);
+      throw error;
     }
   };
 
@@ -195,10 +207,16 @@ export default function CalendarPage() {
                       <Bell className="h-4 w-4" />
                       Reminders
                     </h3>
-                    <ReminderList
-                      reminders={selectedDateEvents.reminders}
-                      onToggleComplete={handleToggleComplete}
-                    />
+                    {selectedDateEvents.reminders.length > 0 ? (
+                      <ReminderList
+                        reminders={selectedDateEvents.reminders}
+                        onToggleComplete={handleToggleComplete}
+                      />
+                    ) : (
+                      <div className="text-center text-muted-foreground py-4">
+                        No reminders for this date
+                      </div>
+                    )}
                   </div>
                 )}
 

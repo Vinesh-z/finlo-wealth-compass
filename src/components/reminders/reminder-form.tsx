@@ -47,6 +47,7 @@ interface ReminderFormProps {
 }
 
 export function ReminderForm({ onAddReminder }: ReminderFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -56,34 +57,48 @@ export function ReminderForm({ onAddReminder }: ReminderFormProps) {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // Combine date and time
-    const timeTokens = values.reminderTime.split(':');
-    const hours = parseInt(timeTokens[0], 10);
-    const minutes = parseInt(timeTokens[1], 10);
-    
-    const reminderDateTime = new Date(values.reminderDate);
-    reminderDateTime.setHours(hours, minutes, 0, 0);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      setIsSubmitting(true);
+      
+      // Combine date and time
+      const timeTokens = values.reminderTime.split(':');
+      const hours = parseInt(timeTokens[0], 10);
+      const minutes = parseInt(timeTokens[1], 10);
+      
+      const reminderDateTime = new Date(values.reminderDate);
+      reminderDateTime.setHours(hours, minutes, 0, 0);
 
-    onAddReminder({
-      title: values.title,
-      description: values.description,
-      reminderDate: reminderDateTime,
-    });
+      await onAddReminder({
+        title: values.title,
+        description: values.description,
+        reminderDate: reminderDateTime,
+      });
 
-    // Show success toast
-    toast({
-      title: "Reminder Added",
-      description: "Your reminder has been set successfully.",
-      duration: 3000,
-    });
-
-    // Reset form
-    form.reset({
-      title: "",
-      description: "",
-      reminderTime: "09:00",
-    });
+      // Reset form
+      form.reset({
+        title: "",
+        description: "",
+        reminderTime: "09:00",
+      });
+      
+      // Show success toast
+      toast({
+        title: "Reminder Added",
+        description: "Your reminder has been set successfully.",
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error("Failed to add reminder:", error);
+      toast({
+        title: "Failed to add reminder",
+        description: "There was an error adding your reminder. Please try again.",
+        variant: "destructive",
+        duration: 5000,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -184,8 +199,12 @@ export function ReminderForm({ onAddReminder }: ReminderFormProps) {
               )}
             />
 
-            <Button type="submit" className="w-full">
-              Set Reminder
+            <Button 
+              type="submit" 
+              className="w-full"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Adding Reminder..." : "Set Reminder"}
             </Button>
           </form>
         </Form>
