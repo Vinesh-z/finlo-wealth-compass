@@ -103,7 +103,7 @@ export function TransactionForm({
 
   const isEditing = !!editingTransaction;
   const formTitle = isEditing ? "Edit Transaction" : "Add Transaction";
-  const formIcon = isEditing ? Save : PlusCircle;
+  const buttonIcon = isEditing ? <Save className="h-4 w-4" /> : <PlusCircle className="h-4 w-4" />;
   const buttonText = isEditing ? "Update" : "Add";
 
   return (
@@ -194,7 +194,7 @@ export function TransactionForm({
               type="submit" 
               className="flex-1 h-11 gap-2 bg-primary hover:bg-primary/90"
             >
-              <formIcon className="h-4 w-4" />
+              {buttonIcon}
               {buttonText} Transaction
             </Button>
             
