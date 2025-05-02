@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Investment } from "@/types";
 import { formatCurrency, formatPercent } from "@/utils/format";
 import { calculateROI } from "@/utils/calculations";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Palette using blue rows for lines and legend
 const LINES = [
@@ -26,6 +27,8 @@ interface InvestmentPerformanceChartProps {
 }
 
 export function InvestmentPerformanceChart({ investments }: InvestmentPerformanceChartProps) {
+  const isMobile = useIsMobile();
+
   // Sort investments by ROI
   const sortedInvestments = [...investments]
     .sort((a, b) => {
@@ -33,14 +36,14 @@ export function InvestmentPerformanceChart({ investments }: InvestmentPerformanc
       const roiB = calculateROI(b);
       return roiB - roiA;
     })
-    .slice(0, 10);
+    .slice(0, isMobile ? 5 : 10); // Show fewer items on mobile
   
   // Prepare data for chart
   const data = sortedInvestments.map(investment => {
     const roi = calculateROI(investment);
     return {
-      name: investment.name.length > 15 
-        ? investment.name.substring(0, 15) + "..." 
+      name: investment.name.length > (isMobile ? 10 : 15)
+        ? investment.name.substring(0, isMobile ? 10 : 15) + "..." 
         : investment.name,
       initialValue: investment.initialValue,
       currentValue: investment.currentValue,
@@ -83,21 +86,68 @@ export function InvestmentPerformanceChart({ investments }: InvestmentPerformanc
       </CardHeader>
       <CardContent>
         {data.length > 0 ? (
-          <div className="h-[350px]">
+          <div className={`${isMobile ? 'h-[300px] mobile-chart-container' : 'h-[350px]'}`}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={data}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                margin={{ 
+                  top: 5, 
+                  right: isMobile ? 10 : 30, 
+                  left: isMobile ? 10 : 20, 
+                  bottom: 5 
+                }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis yAxisId="left" orientation="left" tickFormatter={(value) => formatCurrency(value)} />
-                <YAxis yAxisId="right" orientation="right" tickFormatter={(value) => `${value}%`} />
+                <XAxis 
+                  dataKey="name" 
+                  tick={{ fontSize: isMobile ? 10 : 12 }} 
+                  angle={isMobile ? -45 : 0}
+                  textAnchor={isMobile ? "end" : "middle"}
+                  height={isMobile ? 60 : 30}
+                />
+                <YAxis 
+                  yAxisId="left" 
+                  orientation="left" 
+                  tickFormatter={(value) => isMobile ? value.toLocaleString() : formatCurrency(value)}
+                  tick={{ fontSize: isMobile ? 10 : 12 }}
+                  width={isMobile ? 60 : 80}
+                />
+                <YAxis 
+                  yAxisId="right" 
+                  orientation="right" 
+                  tickFormatter={(value) => `${value}%`}
+                  tick={{ fontSize: isMobile ? 10 : 12 }}
+                  width={isMobile ? 40 : 50}
+                />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
-                <Line yAxisId="left" type="monotone" dataKey="initialValue" name="Initial Value" stroke="#142459" strokeWidth={2} dot={{ strokeWidth: 2 }} />
-                <Line yAxisId="left" type="monotone" dataKey="currentValue" name="Current Value" stroke="#19AADE" strokeWidth={2} dot={{ strokeWidth: 2 }} />
-                <Line yAxisId="right" type="monotone" dataKey="roi" name="ROI (%)" stroke="#6DF002" strokeWidth={2} dot={{ strokeWidth: 2 }} />
+                <Line 
+                  yAxisId="left" 
+                  type="monotone" 
+                  dataKey="initialValue" 
+                  name="Initial Value" 
+                  stroke="#142459" 
+                  strokeWidth={2} 
+                  dot={{ strokeWidth: isMobile ? 1 : 2, r: isMobile ? 3 : 4 }} 
+                />
+                <Line 
+                  yAxisId="left" 
+                  type="monotone" 
+                  dataKey="currentValue" 
+                  name="Current Value" 
+                  stroke="#19AADE" 
+                  strokeWidth={2} 
+                  dot={{ strokeWidth: isMobile ? 1 : 2, r: isMobile ? 3 : 4 }} 
+                />
+                <Line 
+                  yAxisId="right" 
+                  type="monotone" 
+                  dataKey="roi" 
+                  name="ROI (%)" 
+                  stroke="#6DF002" 
+                  strokeWidth={2} 
+                  dot={{ strokeWidth: isMobile ? 1 : 2, r: isMobile ? 3 : 4 }} 
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>

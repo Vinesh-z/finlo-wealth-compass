@@ -2,12 +2,15 @@
 import { ReactNode, useEffect } from "react";
 import { NavMenu } from "@/components/nav-menu";
 import { motion } from "framer-motion";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 export function Layout({ children }: LayoutProps) {
+  const isMobile = useIsMobile();
+  
   // Add custom scrollbar styling to the body
   useEffect(() => {
     document.body.classList.add('custom-scrollbar');
@@ -20,7 +23,7 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-background flex w-full">
       <NavMenu />
-      <main className="md:pl-64 min-h-screen w-full flex flex-col">
+      <main className={`md:pl-64 min-h-screen w-full flex flex-col ${isMobile ? 'pl-2 pr-2' : ''}`}>
         <motion.div 
           className="container mx-auto p-4 sm:p-6 flex-grow"
           initial={{ opacity: 0 }}

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Investment } from "@/types";
 import { formatCurrency } from "@/utils/format";
 import { FixedDeposit, ProvidentFund, PreciousMetal } from "@/types";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Add new properties for all asset types
 interface InvestmentPortfolioChartProps {
@@ -19,6 +20,8 @@ export function InvestmentPortfolioChart({
   providentFunds = [],
   preciousMetals = []
 }: InvestmentPortfolioChartProps) {
+  const isMobile = useIsMobile();
+
   // Helper: fixed deposits maturity value
   const getFDMaturity = (deposit: FixedDeposit) => {
     const principal = deposit.principalAmount;
@@ -92,7 +95,7 @@ export function InvestmentPortfolioChart({
       </CardHeader>
       <CardContent>
         {data.length > 0 ? (
-          <div className="h-[350px]">
+          <div className={`${isMobile ? 'h-[300px] mobile-chart-container' : 'h-[350px]'}`}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -100,12 +103,14 @@ export function InvestmentPortfolioChart({
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  outerRadius={120}
+                  outerRadius={isMobile ? 80 : 120}
                   fill="#8884d8"
                   dataKey="value"
                   nameKey="label"
                   label={({ name, percent }) =>
-                    `${name}: ${(percent * 100).toFixed(1)}%`
+                    isMobile ? 
+                      `${(percent * 100).toFixed(0)}%` :
+                      `${name}: ${(percent * 100).toFixed(1)}%`
                   }
                 >
                   {data.map((entry, index) => (

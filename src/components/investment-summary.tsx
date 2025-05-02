@@ -1,4 +1,3 @@
-
 import { 
   Card, 
   CardContent, 
@@ -8,6 +7,7 @@ import {
 import { Investment, FixedDeposit, ProvidentFund, PreciousMetal } from "@/types";
 import { formatCurrency, formatPercent } from "@/utils/format";
 import { calculateTotalPortfolioValue, calculateTotalGainLoss } from "@/utils/calculations";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface InvestmentSummaryProps {
   investments: Investment[];
@@ -22,6 +22,8 @@ export function InvestmentSummary({
   providentFunds = [], 
   preciousMetals = [] 
 }: InvestmentSummaryProps) {
+  const isMobile = useIsMobile();
+
   // Calculate fixed deposits value
   const totalFixedDepositsValue = fixedDeposits.reduce((total, deposit) => {
     const principal = deposit.principalAmount;
@@ -114,17 +116,21 @@ export function InvestmentSummary({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">Total Portfolio Value</p>
-            <p className="text-2xl font-bold">{formatCurrency(totalPortfolioValue)}</p>
+            <p className={isMobile ? "mobile-card-value" : "text-2xl font-bold"}>
+              {formatCurrency(totalPortfolioValue)}
+            </p>
           </div>
           
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">Initial Investment</p>
-            <p className="text-2xl font-bold">{formatCurrency(totalInitialValue)}</p>
+            <p className={isMobile ? "mobile-card-value" : "text-2xl font-bold"}>
+              {formatCurrency(totalInitialValue)}
+            </p>
           </div>
           
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">Total Gain/Loss</p>
-            <p className={`text-2xl font-bold ${isProfit ? "text-income" : "text-expense"}`}>
+            <p className={`${isMobile ? "mobile-card-value" : "text-2xl font-bold"} ${isProfit ? "text-income" : "text-expense"}`}>
               {isProfit ? "+" : ""}
               {formatCurrency(totalGainLoss)}
             </p>
@@ -132,7 +138,7 @@ export function InvestmentSummary({
           
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">Overall ROI</p>
-            <p className={`text-2xl font-bold ${isProfit ? "text-income" : "text-expense"}`}>
+            <p className={`${isMobile ? "mobile-card-value" : "text-2xl font-bold"} ${isProfit ? "text-income" : "text-expense"}`}>
               {formatPercent(overallROI)}
             </p>
           </div>

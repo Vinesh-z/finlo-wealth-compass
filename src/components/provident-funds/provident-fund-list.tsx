@@ -15,12 +15,15 @@ import {
 } from "@/components/ui/table";
 import { ProvidentFund } from "@/types";
 import { formatCurrency, formatDate, formatPercent } from "@/utils/format";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ProvidentFundListProps {
   funds: ProvidentFund[];
 }
 
 export function ProvidentFundList({ funds }: ProvidentFundListProps) {
+  const isMobile = useIsMobile();
+
   const calculateFutureValues = (fund: ProvidentFund) => {
     const currentBalance = fund.currentBalance;
     const rate = fund.interestRate / 100;
@@ -39,13 +42,71 @@ export function ProvidentFundList({ funds }: ProvidentFundListProps) {
     return diffYears.toFixed(1);
   };
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Your Provident Funds</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="rounded-md border">
+  // Mobile version for displaying funds
+  const renderMobileFunds = () => {
+    return funds.length > 0 ? (
+      <div className="space-y-4">
+        {funds.map((fund) => {
+          const futureValues = calculateFutureValues(fund);
+          
+          return (
+            <Card key={fund.id} className="overflow-hidden">
+              <CardContent className="p-4">
+                <div className="font-semibold text-lg mb-2">{fund.name}</div>
+                
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Years Active</p>
+                    <p className="font-medium">{yearsActive(fund.startDate)} years</p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm text-muted-foreground">Interest Rate</p>
+                    <p className="font-medium">{formatPercent(fund.interestRate / 100)}</p>
+                  </div>
+                </div>
+                
+                <div className="mb-3">
+                  <p className="text-sm text-muted-foreground">Current Balance</p>
+                  <p className="font-semibold text-lg">{formatCurrency(fund.currentBalance)}</p>
+                </div>
+                
+                <div className="border-t pt-3">
+                  <p className="text-sm font-medium mb-2">Future Projections</p>
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div>
+                      <p className="text-xs text-muted-foreground">1 Year</p>
+                      <p className="text-sm font-medium">{formatCurrency(futureValues.oneYear)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">5 Years</p>
+                      <p className="text-sm font-medium">{formatCurrency(futureValues.fiveYears)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">10 Years</p>
+                      <p className="text-sm font-medium">{formatCurrency(futureValues.tenYears)}</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    ) : (
+      <Card>
+        <CardContent className="text-center py-6 text-muted-foreground">
+          No provident funds found
+        </CardContent>
+      </Card>
+    );
+  };
+
+  // Desktop version with table
+  const renderDesktopTable = () => {
+    return (
+      <div className="rounded-md border">
+        <div className="responsive-table-container">
           <Table>
             <TableHeader>
               <TableRow>
@@ -95,6 +156,17 @@ export function ProvidentFundList({ funds }: ProvidentFundListProps) {
             </TableBody>
           </Table>
         </div>
+      </div>
+    );
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Your Provident Funds</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {isMobile ? renderMobileFunds() : renderDesktopTable()}
       </CardContent>
     </Card>
   );

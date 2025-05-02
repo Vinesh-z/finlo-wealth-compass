@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { PreciousMetal } from "@/types";
 import { formatCurrency, formatDate } from "@/utils/format";
 import { useState, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface PreciousMetalListProps {
   metals: PreciousMetal[];
@@ -41,6 +42,7 @@ const getCurrentPrices = () => {
 export function PreciousMetalList({ metals }: PreciousMetalListProps) {
   const [currentPrices, setCurrentPrices] = useState(getCurrentPrices());
   const [loading, setLoading] = useState(false);
+  const isMobile = useIsMobile();
 
   // Simulate fetching current prices
   useEffect(() => {
@@ -70,6 +72,152 @@ export function PreciousMetalList({ metals }: PreciousMetalListProps) {
     return ((currentValue - purchaseValue) / purchaseValue) * 100;
   };
 
+  // Mobile rendering for precious metals
+  const renderMobileMetals = () => {
+    return metals.length > 0 ? (
+      <div className="space-y-4">
+        {metals.map((metal) => {
+          const profit = calculateProfit(metal);
+          const profitPercentage = calculateProfitPercentage(metal);
+          const isProfit = profit >= 0;
+          
+          return (
+            <Card key={metal.id} className="overflow-hidden">
+              <CardContent className="p-4">
+                <div className="flex justify-between items-center mb-3">
+                  <Badge variant={metal.type === "gold" ? "default" : "outline"}>
+                    {metal.type.charAt(0).toUpperCase() + metal.type.slice(1)}
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">
+                    {formatDate(metal.purchaseDate)}
+                  </span>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Quantity</p>
+                    <p className="font-medium">
+                      {metal.quantity} {metal.unit}{metal.quantity > 1 ? "s" : ""}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm text-muted-foreground">Purchase Price</p>
+                    <p className="font-medium">
+                      {formatCurrency(metal.purchasePricePerUnit)}/{metal.unit}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm text-muted-foreground">Current Price</p>
+                    <p className="font-medium">
+                      {formatCurrency(currentPrices[metal.type][metal.unit])}/{metal.unit}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm text-muted-foreground">Current Value</p>
+                    <p className="font-medium">
+                      {formatCurrency(calculateCurrentValue(metal))}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="border-t pt-3">
+                  <p className="text-sm text-muted-foreground">Profit/Loss</p>
+                  <p className={`font-medium ${isProfit ? "text-income" : "text-expense"}`}>
+                    {isProfit ? "+" : ""}
+                    {formatCurrency(profit)} 
+                    <span className="text-xs ml-1">
+                      ({isProfit ? "+" : ""}{profitPercentage.toFixed(2)}%)
+                    </span>
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    ) : (
+      <div className="text-center py-6 text-muted-foreground">
+        No precious metals found
+      </div>
+    );
+  };
+
+  // Desktop table rendering
+  const renderDesktopTable = () => {
+    return (
+      <div className="rounded-md border">
+        <div className="responsive-table-container">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Type</TableHead>
+                <TableHead>Quantity</TableHead>
+                <TableHead>Purchase Date</TableHead>
+                <TableHead className="text-right">Purchase Price</TableHead>
+                <TableHead className="text-right">Current Price</TableHead>
+                <TableHead className="text-right">Current Value</TableHead>
+                <TableHead className="text-right">Profit/Loss</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {metals.length > 0 ? (
+                metals.map((metal) => {
+                  const profit = calculateProfit(metal);
+                  const profitPercentage = calculateProfitPercentage(metal);
+                  const isProfit = profit >= 0;
+                  
+                  return (
+                    <TableRow key={metal.id}>
+                      <TableCell>
+                        <Badge variant={metal.type === "gold" ? "default" : "outline"}>
+                          {metal.type.charAt(0).toUpperCase() + metal.type.slice(1)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {metal.quantity} {metal.unit}
+                        {metal.quantity > 1 ? "s" : ""}
+                      </TableCell>
+                      <TableCell>{formatDate(metal.purchaseDate)}</TableCell>
+                      <TableCell className="text-right">
+                        {formatCurrency(metal.purchasePricePerUnit)} per {metal.unit}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {formatCurrency(currentPrices[metal.type][metal.unit])} per {metal.unit}
+                      </TableCell>
+                      <TableCell className="text-right font-medium">
+                        {formatCurrency(calculateCurrentValue(metal))}
+                      </TableCell>
+                      <TableCell 
+                        className={`text-right font-medium ${
+                          isProfit ? "text-income" : "text-expense"
+                        }`}
+                      >
+                        {isProfit ? "+" : ""}
+                        {formatCurrency(profit)} 
+                        <span className="text-xs ml-1">
+                          ({isProfit ? "+" : ""}{profitPercentage.toFixed(2)}%)
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
+                    No precious metals found
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -78,72 +226,10 @@ export function PreciousMetalList({ metals }: PreciousMetalListProps) {
       <CardContent>
         {loading ? (
           <div className="text-center py-4">Loading current prices...</div>
+        ) : isMobile ? (
+          renderMobileMetals()
         ) : (
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Quantity</TableHead>
-                  <TableHead>Purchase Date</TableHead>
-                  <TableHead className="text-right">Purchase Price</TableHead>
-                  <TableHead className="text-right">Current Price</TableHead>
-                  <TableHead className="text-right">Current Value</TableHead>
-                  <TableHead className="text-right">Profit/Loss</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {metals.length > 0 ? (
-                  metals.map((metal) => {
-                    const profit = calculateProfit(metal);
-                    const profitPercentage = calculateProfitPercentage(metal);
-                    const isProfit = profit >= 0;
-                    
-                    return (
-                      <TableRow key={metal.id}>
-                        <TableCell>
-                          <Badge variant={metal.type === "gold" ? "default" : "outline"}>
-                            {metal.type.charAt(0).toUpperCase() + metal.type.slice(1)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {metal.quantity} {metal.unit}
-                          {metal.quantity > 1 ? "s" : ""}
-                        </TableCell>
-                        <TableCell>{formatDate(metal.purchaseDate)}</TableCell>
-                        <TableCell className="text-right">
-                          {formatCurrency(metal.purchasePricePerUnit)} per {metal.unit}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {formatCurrency(currentPrices[metal.type][metal.unit])} per {metal.unit}
-                        </TableCell>
-                        <TableCell className="text-right font-medium">
-                          {formatCurrency(calculateCurrentValue(metal))}
-                        </TableCell>
-                        <TableCell 
-                          className={`text-right font-medium ${
-                            isProfit ? "text-income" : "text-expense"
-                          }`}
-                        >
-                          {isProfit ? "+" : ""}
-                          {formatCurrency(profit)} 
-                          <span className="text-xs ml-1">
-                            ({isProfit ? "+" : ""}{profitPercentage.toFixed(2)}%)
-                          </span>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
-                      No precious metals found
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
+          renderDesktopTable()
         )}
 
         <div className="mt-4 text-sm text-muted-foreground">

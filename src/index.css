@@ -120,6 +120,27 @@
   .custom-scrollbar::-webkit-scrollbar-thumb {
     @apply bg-primary/60 rounded-full;
   }
+  
+  /* Mobile-specific styles for investment page */
+  .mobile-value-text {
+    @apply text-xl font-semibold break-words;
+  }
+  
+  .mobile-label-text {
+    @apply text-sm text-muted-foreground font-medium;
+  }
+  
+  .mobile-projection-grid {
+    @apply grid grid-cols-1 gap-2 sm:grid-cols-3;
+  }
+  
+  .mobile-investment-summary {
+    @apply grid grid-cols-1 sm:grid-cols-2 gap-3;
+  }
+  
+  .mobile-chart-container {
+    @apply overflow-x-auto overflow-y-hidden pb-4;
+  }
 }
 
 /* Additional responsive utilities */
@@ -138,6 +159,15 @@
   .mobile-stack > * {
     width: 100%;
   }
+  
+  /* Fix for overlapping text in cards */
+  .mobile-card-value {
+    font-size: 1.25rem;
+    line-height: 1.5rem;
+    word-break: break-word;
+    max-width: 100%;
+    display: block;
+  }
 }
 
 /* Make sure all tables are responsive */
@@ -147,7 +177,21 @@ table {
   overflow-x: auto;
 }
 
+/* Ensure tables don't overflow on mobile */
+.responsive-table-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Fix for Sheet component in mobile view */
 .fixed {
   position: fixed;
+}
+
+/* Fix for overlapping future projection values */
+.projection-value {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
