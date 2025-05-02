@@ -97,4 +97,57 @@
   .button-gradient {
     @apply bg-gradient-to-r from-primary to-accent text-white hover:opacity-90 transition-opacity;
   }
+
+  /* Responsive container to prevent content overflow */
+  .responsive-container {
+    @apply w-full max-w-full overflow-x-auto;
+  }
+
+  /* Custom scrollbar styling for better mobile experience */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.primary.DEFAULT') theme('colors.secondary.DEFAULT');
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply w-1.5 h-1.5;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-secondary rounded-full;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-primary/60 rounded-full;
+  }
+}
+
+/* Additional responsive utilities */
+@media (max-width: 640px) {
+  .truncate-mobile {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  
+  .mobile-stack {
+    flex-direction: column;
+  }
+  
+  .mobile-stack > * {
+    width: 100%;
+  }
+}
+
+/* Make sure all tables are responsive */
+table {
+  width: 100%;
+  min-width: 100%;
+  overflow-x: auto;
+}
+
+/* Fix for Sheet component in mobile view */
+.fixed {
+  position: fixed;
 }

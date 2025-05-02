@@ -39,7 +39,7 @@ const Index = () => {
       {/* Content */}
       <div className="w-full max-w-3xl text-center relative z-10">
         <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-6 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-          Welcome to Zinfy
+          Welcome to Zynfi
         </h1>
         <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto">
           Take control of your financial future with our comprehensive personal finance management platform.
@@ -58,4 +58,3 @@ const Index = () => {
 };
 
 export default Index;
-

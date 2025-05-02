@@ -63,7 +63,7 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-secondary/30">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <h1 className="text-4xl mb-2 font-bold">Welcome to <span className="text-gradient">Zenfi</span></h1>
+          <h1 className="text-4xl mb-2 font-bold">Welcome to <span className="text-gradient">Zynfi</span></h1>
           <p className="text-muted-foreground">
             Your personal finance companion
           </p>

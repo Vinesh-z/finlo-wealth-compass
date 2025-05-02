@@ -115,7 +115,7 @@ export function TransactionListMobile({
               </div>
 
               <div className="flex-1">
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row sm:gap-4">
                   <div className="flex gap-1 items-center">
                     <span className="text-sm font-medium text-blue-500">
                       {income ? "+ " + formatCurrency(income) : "+ ₹0.00"}

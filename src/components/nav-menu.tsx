@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -76,8 +77,11 @@ export function NavMenu() {
             <span className="sr-only">Toggle Menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="pl-8 pr-0 pt-12">
+        <SheetContent side="left" className="pl-8 pr-0 pt-12 bg-background border-r border-border">
           <div className="flex flex-col gap-4">
+            <div className="flex items-center mb-6">
+              <span className="font-bold text-lg">Zynfi</span>
+            </div>
             {routes.map(route => <Link key={route.href} to={route.href} onClick={() => setOpen(false)} className={cn("text-sm group flex p-3 w-full justify-start font-medium cursor-pointer hover:text-primary hover:bg-primary-foreground rounded-lg transition", route.active ? "text-primary bg-primary/10" : "text-muted-foreground")}>
                 <route.icon className="h-5 w-5 mr-3" />
                 {route.label}
@@ -91,14 +95,14 @@ export function NavMenu() {
             </Button>
           </div>
         </SheetContent>
-      </Sheet> : <div className="fixed inset-y-0 left-0 z-40 w-64 bg-sidebar border-r border-border hidden md:block">
+      </Sheet> : <div className="fixed inset-y-0 left-0 z-40 w-64 bg-background border-r border-border hidden md:block">
         <div className="h-20 flex items-center px-8">
           <Link to="/dashboard" className="flex items-center gap-2">
-            <span className="font-bold text-lg">Zenfi</span>
+            <span className="font-bold text-lg">Zynfi</span>
           </Link>
         </div>
         <div className="space-y-1 px-4">
-          {routes.map(route => <Link key={route.href} to={route.href} className={cn("text-sm group flex p-3 w-full justify-start font-medium cursor-pointer hover:text-primary hover:bg-primary-foreground rounded-lg transition", route.active ? "text-sidebar-primary-foreground bg-sidebar-primary" : "text-sidebar-foreground")}>
+          {routes.map(route => <Link key={route.href} to={route.href} className={cn("text-sm group flex p-3 w-full justify-start font-medium cursor-pointer hover:text-primary hover:bg-primary-foreground rounded-lg transition", route.active ? "text-primary bg-primary/10" : "text-muted-foreground")}>
               <route.icon className="h-5 w-5 mr-3" />
               {route.label}
             </Link>)}
