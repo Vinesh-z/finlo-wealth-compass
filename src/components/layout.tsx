@@ -23,7 +23,7 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-background flex w-full">
       <NavMenu />
-      <main className={`md:pl-64 min-h-screen w-full flex flex-col ${isMobile ? 'pl-4 pr-4' : ''}`}>
+      <main className={`md:pl-64 min-h-screen w-full flex flex-col ${isMobile ? 'px-4' : ''}`}>
         <motion.div 
           className="container mx-auto p-4 sm:p-6 flex-grow"
           initial={{ opacity: 0 }}

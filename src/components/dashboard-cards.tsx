@@ -5,6 +5,7 @@ import { Transaction } from "@/types";
 import { formatCurrency } from "@/utils/format";
 import { calculateTotalIncome, calculateTotalExpenses, calculateSavings } from "@/utils/calculations";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 
 interface DashboardCardsProps {
   transactions: Transaction[];
@@ -16,20 +17,32 @@ interface DashboardCardsProps {
 }
 
 export function DashboardCards({ transactions, previousMonthData }: DashboardCardsProps) {
-  const totalIncome = calculateTotalIncome(transactions);
-  const totalExpenses = calculateTotalExpenses(transactions);
-  const savings = calculateSavings(transactions);
+  const [totalIncome, setTotalIncome] = useState<number>(0);
+  const [totalExpenses, setTotalExpenses] = useState<number>(0); 
+  const [savings, setSavings] = useState<number>(0);
+
+  useEffect(() => {
+    if (transactions && transactions.length > 0) {
+      const income = calculateTotalIncome(transactions);
+      const expenses = calculateTotalExpenses(transactions);
+      const calculatedSavings = calculateSavings(transactions);
+      
+      setTotalIncome(income);
+      setTotalExpenses(expenses);
+      setSavings(calculatedSavings);
+    }
+  }, [transactions]);
 
   // Calculate trends if previous month data exists
-  const incomeTrend = previousMonthData
+  const incomeTrend = previousMonthData && previousMonthData.income !== 0
     ? ((totalIncome - previousMonthData.income) / previousMonthData.income) * 100
     : 0;
   
-  const expensesTrend = previousMonthData
+  const expensesTrend = previousMonthData && previousMonthData.expenses !== 0
     ? ((totalExpenses - previousMonthData.expenses) / previousMonthData.expenses) * 100
     : 0;
   
-  const savingsTrend = previousMonthData
+  const savingsTrend = previousMonthData && previousMonthData.savings !== 0
     ? ((savings - previousMonthData.savings) / previousMonthData.savings) * 100
     : 0;
     
@@ -56,6 +69,7 @@ export function DashboardCards({ transactions, previousMonthData }: DashboardCar
       variants={containerVariants}
       initial="hidden"
       animate="visible"
+      key={`cards-${totalIncome}-${totalExpenses}-${savings}`}
     >
       <motion.div variants={itemVariants}>
         <CardStat

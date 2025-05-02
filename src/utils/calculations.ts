@@ -2,12 +2,16 @@
 import { Transaction, Investment } from '@/types';
 
 export const calculateTotalIncome = (transactions: Transaction[]): number => {
+  if (!transactions || !transactions.length) return 0;
+  
   return transactions
     .filter(t => t.type === 'income')
     .reduce((total, transaction) => total + transaction.amount, 0);
 };
 
 export const calculateTotalExpenses = (transactions: Transaction[]): number => {
+  if (!transactions || !transactions.length) return 0;
+  
   return transactions
     .filter(t => t.type === 'expense')
     .reduce((total, transaction) => total + transaction.amount, 0);
@@ -24,6 +28,8 @@ export const calculateCategoryTotal = (
   category: string,
   type: 'income' | 'expense'
 ): number => {
+  if (!transactions || !transactions.length) return 0;
+  
   return transactions
     .filter(t => t.type === type && t.category === category)
     .reduce((total, transaction) => total + transaction.amount, 0);
@@ -48,10 +54,12 @@ export const calculateROI = (investment: Investment): number => {
 };
 
 export const calculateTotalPortfolioValue = (investments: Investment[]): number => {
+  if (!investments || !investments.length) return 0;
   return investments.reduce((total, investment) => total + investment.currentValue, 0);
 };
 
 export const calculateTotalGainLoss = (investments: Investment[]): number => {
+  if (!investments || !investments.length) return 0;
   return investments.reduce(
     (total, investment) => total + (investment.currentValue - investment.initialValue),
     0
