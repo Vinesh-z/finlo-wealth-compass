@@ -29,21 +29,21 @@ export function TransactionList({
 }: TransactionListProps) {
   if (isLoading) {
     return (
-      <div className="px-4">
-        <div className="rounded-lg overflow-hidden border border-border">
+      <Card className="overflow-hidden border-none shadow-md">
+        <div className="rounded-lg overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="bg-secondary/50 hover:bg-secondary/50">
-                <TableHead className="font-medium">Date</TableHead>
-                <TableHead className="font-medium">Description</TableHead>
-                <TableHead className="font-medium">Category</TableHead>
-                <TableHead className="text-right font-medium">Amount</TableHead>
-                {(onEdit || onDelete) && <TableHead className="w-[100px] font-medium">Actions</TableHead>}
+              <TableRow className="bg-secondary/70 hover:bg-secondary/70">
+                <TableHead className="font-semibold text-foreground/80">Date</TableHead>
+                <TableHead className="font-semibold text-foreground/80">Description</TableHead>
+                <TableHead className="font-semibold text-foreground/80">Category</TableHead>
+                <TableHead className="text-right font-semibold text-foreground/80">Amount</TableHead>
+                {(onEdit || onDelete) && <TableHead className="w-[100px] font-semibold text-foreground/80">Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={i} className="border-b hover:bg-secondary/30 transition-colors">
+                <TableRow key={i} className="border-b border-border/30 hover:bg-secondary/20 transition-all duration-200">
                   <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-32" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-24" /></TableCell>
@@ -56,21 +56,21 @@ export function TransactionList({
             </TableBody>
           </Table>
         </div>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="px-4">
-      <div className="rounded-lg overflow-hidden border border-border">
+    <Card className="overflow-hidden border-none shadow-md">
+      <div className="rounded-lg overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-secondary/50 hover:bg-secondary/50">
-              <TableHead className="font-medium">Date</TableHead>
-              <TableHead className="font-medium">Description</TableHead>
-              <TableHead className="font-medium">Category</TableHead>
-              <TableHead className="text-right font-medium">Amount</TableHead>
-              {(onEdit || onDelete) && <TableHead className="w-[100px] font-medium">Actions</TableHead>}
+            <TableRow className="bg-secondary/70 hover:bg-secondary/70">
+              <TableHead className="font-semibold text-foreground/80">Date</TableHead>
+              <TableHead className="font-semibold text-foreground/80">Description</TableHead>
+              <TableHead className="font-semibold text-foreground/80">Category</TableHead>
+              <TableHead className="text-right font-semibold text-foreground/80">Amount</TableHead>
+              {(onEdit || onDelete) && <TableHead className="w-[100px] font-semibold text-foreground/80">Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -81,20 +81,23 @@ export function TransactionList({
                 return (
                   <TableRow 
                     key={transaction.id} 
-                    className="border-b hover:bg-secondary/30 transition-colors"
+                    className="border-b border-border/30 hover:bg-secondary/20 transition-all duration-200"
                   >
-                    <TableCell className="text-sm">{formatDate(transaction.date)}</TableCell>
-                    <TableCell className="text-sm">{transaction.description || '-'}</TableCell>
-                    <TableCell className="capitalize text-sm">
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        isIncome ? 'bg-income-light text-income' : 'bg-expense-light text-expense'
+                    <TableCell className="text-sm font-medium">{formatDate(transaction.date)}</TableCell>
+                    <TableCell className="text-sm">
+                      {transaction.description || '-'}
+                    </TableCell>
+                    <TableCell>
+                      <span className={`px-2.5 py-1.5 rounded-full text-xs font-medium ${
+                        isIncome ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400' : 
+                        'bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400'
                       }`}>
                         {transaction.category.replace("_", " ")}
                       </span>
                     </TableCell>
                     <TableCell 
-                      className={`text-right font-medium text-sm ${
-                        isIncome ? "text-income" : "text-expense"
+                      className={`text-right font-semibold text-sm ${
+                        isIncome ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
                       }`}
                     >
                       {isIncome ? "+" : "-"}
@@ -109,7 +112,7 @@ export function TransactionList({
                               size="icon"
                               onClick={() => onEdit(transaction)}
                               title="Edit"
-                              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                              className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-full"
                             >
                               <Pencil className="h-3.5 w-3.5" />
                             </Button>
@@ -119,7 +122,7 @@ export function TransactionList({
                               variant="ghost"
                               size="icon"
                               onClick={() => onDelete(transaction.id)}
-                              className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
+                              className="h-8 w-8 text-rose-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-full"
                               title="Delete"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
@@ -135,7 +138,7 @@ export function TransactionList({
               <TableRow>
                 <TableCell 
                   colSpan={(onEdit || onDelete) ? 5 : 4} 
-                  className="text-center py-8 text-muted-foreground"
+                  className="text-center py-10 text-muted-foreground"
                 >
                   <div className="flex flex-col items-center">
                     <div className="rounded-full bg-secondary/50 p-3 mb-2">
@@ -152,6 +155,6 @@ export function TransactionList({
           </TableBody>
         </Table>
       </div>
-    </div>
+    </Card>
   );
 }

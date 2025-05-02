@@ -22,15 +22,14 @@ export function DashboardCards({ transactions, previousMonthData }: DashboardCar
   const [savings, setSavings] = useState<number>(0);
 
   useEffect(() => {
-    if (transactions && transactions.length > 0) {
-      const income = calculateTotalIncome(transactions);
-      const expenses = calculateTotalExpenses(transactions);
-      const calculatedSavings = calculateSavings(transactions);
-      
-      setTotalIncome(income);
-      setTotalExpenses(expenses);
-      setSavings(calculatedSavings);
-    }
+    // Always calculate values regardless of transactions length
+    const income = calculateTotalIncome(transactions);
+    const expenses = calculateTotalExpenses(transactions);
+    const calculatedSavings = calculateSavings(transactions);
+    
+    setTotalIncome(income);
+    setTotalExpenses(expenses);
+    setSavings(calculatedSavings);
   }, [transactions]);
 
   // Calculate trends if previous month data exists

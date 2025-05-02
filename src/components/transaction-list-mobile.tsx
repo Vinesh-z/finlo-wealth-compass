@@ -9,6 +9,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { Pencil, Trash2 } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 type TransactionListMobileProps = {
   transactions: Transaction[];
@@ -66,7 +67,7 @@ export function TransactionListMobile({
     return (
       <div className="space-y-4">
         {[1, 2, 3, 4].map(i => (
-          <div key={i} className="bg-neutral-200 dark:bg-zinc-900 rounded-2xl p-6 animate-pulse h-24" />
+          <Card key={i} className="bg-neutral-100 dark:bg-zinc-900/50 rounded-xl p-6 animate-pulse h-24" />
         ))}
       </div>
     );
@@ -74,9 +75,11 @@ export function TransactionListMobile({
 
   if (groupKeys.length === 0) {
     return (
-      <div className="text-center text-muted-foreground py-8 text-lg font-medium">
-        No transactions found
-      </div>
+      <Card className="rounded-xl p-8 text-center">
+        <div className="text-center text-muted-foreground py-4 text-lg font-medium">
+          No transactions found
+        </div>
+      </Card>
     );
   }
 
@@ -99,16 +102,16 @@ export function TransactionListMobile({
               {/* Modern date display */}
               <div className="
                 flex flex-col items-center justify-center
-                p-2 w-14 rounded-xl border border-neutral-200/80 dark:border-zinc-800 
-                bg-white dark:bg-zinc-900 shadow-sm
-                mr-3
+                p-2 w-14 rounded-xl shadow-sm
+                mr-3 bg-white dark:bg-zinc-800
+                border border-neutral-200 dark:border-zinc-700
               ">
                 <span className="text-xl font-bold text-primary">{dayNum}</span>
-                <span className="text-xs uppercase font-medium text-gray-500 dark:text-gray-300 leading-tight">{monthName}</span>
+                <span className="text-xs uppercase font-medium text-neutral-500 dark:text-neutral-400 leading-tight">{monthName}</span>
                 <span className={`rounded px-2 py-0.5 text-[11px] font-semibold ${
-                  weekDayName === "Sun" ? "bg-red-100 text-red-500 dark:bg-red-900/20 dark:text-red-300"
-                  : weekDayName === "Sat" ? "bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300"
-                  : "bg-neutral-100 text-neutral-500 dark:bg-zinc-700 dark:text-zinc-200"
+                  weekDayName === "Sun" ? "bg-rose-100 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400"
+                  : weekDayName === "Sat" ? "bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+                  : "bg-neutral-100 text-neutral-500 dark:bg-zinc-700 dark:text-zinc-300"
                 }`}>
                   {weekDayName}
                 </span>
@@ -117,12 +120,12 @@ export function TransactionListMobile({
               <div className="flex-1">
                 <div className="flex flex-col sm:flex-row sm:gap-4">
                   <div className="flex gap-1 items-center">
-                    <span className="text-sm font-medium text-blue-500">
+                    <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
                       {income ? "+ " + formatCurrency(income) : "+ ₹0.00"}
                     </span>
                   </div>
                   <div className="flex gap-1 items-center">
-                    <span className="text-sm font-medium text-red-500">
+                    <span className="text-sm font-medium text-rose-600 dark:text-rose-400">
                       {expense ? "- " + formatCurrency(expense) : "- ₹0.00"}
                     </span>
                   </div>
@@ -133,31 +136,37 @@ export function TransactionListMobile({
               {txs.map(tx => (
                 <ContextMenu key={tx.id}>
                   <ContextMenuTrigger>
-                    <div
+                    <Card
                       className={`
-                        flex items-center gap-3 rounded-2xl p-4 mt-0
-                        bg-white dark:bg-[#272636] border border-neutral-200 dark:border-zinc-800 shadow-sm
+                        flex items-center gap-3 rounded-xl p-4 
+                        border border-neutral-200 dark:border-zinc-700 shadow-sm
+                        transition-all duration-200 hover:shadow-md
+                        ${tx.type === 'income' ? 'bg-emerald-50/50 dark:bg-emerald-950/10' : 'bg-rose-50/50 dark:bg-rose-950/10'}
                       `}
                     >
-                      <span className="text-2xl min-w-[36px] text-center">{getCategoryIcon(tx.category)}</span>
+                      <div className={`
+                        flex items-center justify-center w-10 h-10 rounded-full 
+                        ${tx.type === 'income' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 
+                          'bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400'}
+                      `}>
+                        <span className="text-lg">{getCategoryIcon(tx.category)}</span>
+                      </div>
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold text-zinc-900 dark:text-white text-[16px] leading-5 truncate">
-                          {tx.description || tx.category.charAt(0).toUpperCase() + tx.category.slice(1)}
+                          {tx.description || tx.category.charAt(0).toUpperCase() + tx.category.slice(1).replace('_', ' ')}
                         </div>
-                        <div className="text-xs text-zinc-500 dark:text-zinc-400 flex items-center gap-1 mt-0.5">
-                          <span className="capitalize">{tx.category}</span>
-                          <span className="opacity-50">•</span>
-                          <span>Cash</span>
+                        <div className="text-xs text-zinc-600 dark:text-zinc-300 flex items-center gap-1 mt-0.5">
+                          <span className="capitalize">{tx.category.replace('_', ' ')}</span>
                         </div>
                       </div>
                       <div className="flex flex-col items-end min-w-[84px]">
                         {tx.type === "income" ? (
-                          <span className="font-medium text-blue-500">+{formatCurrency(tx.amount)}</span>
+                          <span className="font-medium text-emerald-600 dark:text-emerald-400">+{formatCurrency(tx.amount)}</span>
                         ) : (
-                          <span className="font-medium text-red-500">-{formatCurrency(tx.amount)}</span>
+                          <span className="font-medium text-rose-600 dark:text-rose-400">-{formatCurrency(tx.amount)}</span>
                         )}
                       </div>
-                    </div>
+                    </Card>
                   </ContextMenuTrigger>
                   <ContextMenuContent>
                     {onEdit && (
@@ -167,7 +176,7 @@ export function TransactionListMobile({
                       </ContextMenuItem>
                     )}
                     {onDelete && (
-                      <ContextMenuItem onClick={() => onDelete(tx.id)} className="cursor-pointer text-red-500 dark:text-red-400">
+                      <ContextMenuItem onClick={() => onDelete(tx.id)} className="cursor-pointer text-rose-500 dark:text-rose-400">
                         <Trash2 className="mr-2 h-4 w-4" />
                         <span>Delete Transaction</span>
                       </ContextMenuItem>
