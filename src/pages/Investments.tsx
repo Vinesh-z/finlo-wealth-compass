@@ -26,6 +26,7 @@ import { InsuranceList } from "@/components/insurance/insurance-list";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/utils/format";
 import { toast } from "@/components/ui/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 function Investments() {
   const [investments, setInvestments] = useState<Investment[]>([]);
@@ -34,6 +35,7 @@ function Investments() {
   const [preciousMetals, setPreciousMetals] = useState<PreciousMetal[]>([]);
   const [insurances, setInsurances] = useState<Insurance[]>([]);
   const [user, setUser] = useState<{ id: string } | null>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const getUser = async () => {
@@ -538,18 +540,24 @@ function Investments() {
             <CardTitle>Future Value Projection</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-3 gap-4">
-              <div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="text-center sm:text-left">
                 <p className="text-sm text-muted-foreground">5 Years</p>
-                <p className="text-xl font-semibold">{formatCurrency(calculateFutureValue(5))}</p>
+                <p className="text-lg sm:text-xl font-semibold projection-value break-words">
+                  {formatCurrency(calculateFutureValue(5))}
+                </p>
               </div>
-              <div>
+              <div className="text-center sm:text-left">
                 <p className="text-sm text-muted-foreground">10 Years</p>
-                <p className="text-xl font-semibold">{formatCurrency(calculateFutureValue(10))}</p>
+                <p className="text-lg sm:text-xl font-semibold projection-value break-words">
+                  {formatCurrency(calculateFutureValue(10))}
+                </p>
               </div>
-              <div>
+              <div className="text-center sm:text-left">
                 <p className="text-sm text-muted-foreground">20 Years</p>
-                <p className="text-xl font-semibold">{formatCurrency(calculateFutureValue(20))}</p>
+                <p className="text-lg sm:text-xl font-semibold projection-value break-words">
+                  {formatCurrency(calculateFutureValue(20))}
+                </p>
               </div>
             </div>
           </CardContent>

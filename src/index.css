@@ -194,4 +194,14 @@ table {
   word-break: break-word;
   overflow-wrap: break-word;
   max-width: 100%;
+  display: block;
+  font-size: 1.125rem;
+  line-height: 1.5;
+  margin-top: 0.25rem;
+}
+
+@media (min-width: 640px) {
+  .projection-value {
+    font-size: 1.25rem;
+  }
 }
