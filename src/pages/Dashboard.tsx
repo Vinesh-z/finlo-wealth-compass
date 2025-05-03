@@ -1,22 +1,14 @@
 
 import { useState, useEffect } from "react";
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle,
-  CardDescription, 
-} from "@/components/ui/card";
 import { DashboardCards } from "@/components/dashboard-cards";
-import { TransactionForm } from "@/components/transaction-form";
-import { TransactionList } from "@/components/transaction-list";
-import { IncomeExpenseChart } from "@/components/charts/income-expense-chart";
-import { ExpensePieChart } from "@/components/charts/expense-pie-chart";
 import { Transaction, TransactionCategory, TransactionType } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
-import { ArrowRightIcon } from "lucide-react";
+import DashboardHeader from "@/components/dashboard/dashboard-header";
+import DashboardCharts from "@/components/dashboard/dashboard-charts";
+import DashboardTransactionForm from "@/components/dashboard/dashboard-transaction-form";
+import DashboardRecentTransactions from "@/components/dashboard/dashboard-recent-transactions";
 
 function Dashboard() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -154,15 +146,6 @@ function Dashboard() {
       } 
     }
   };
-  
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.6 }
-    }
-  };
 
   return (
     <motion.div 
@@ -171,65 +154,32 @@ function Dashboard() {
       initial="hidden"
       animate="visible"
     >
-      <motion.div variants={itemVariants}>
-        <h1 className="text-3xl font-bold tracking-tight font-heading mb-2">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Your financial overview for {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-        </p>
-      </motion.div>
+      <DashboardHeader />
 
-      <motion.div variants={itemVariants}>
+      <motion.div variants={{
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0 }
+      }}>
         <DashboardCards 
           transactions={thisMonthTransactions} 
           previousMonthData={prevMonthData}
         />
       </motion.div>
 
-      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="shadow-card overflow-hidden border border-neutral-100 dark:border-neutral-800">
-          <CardHeader className="border-b border-neutral-100 dark:border-neutral-800 bg-gradient-to-r from-secondary/30 to-secondary/10 dark:from-secondary/10 dark:to-transparent pb-4">
-            <CardTitle className="text-lg font-heading">Income & Expenses</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <IncomeExpenseChart transactions={transactions} />
-          </CardContent>
-        </Card>
-        
-        <Card className="shadow-card overflow-hidden border border-neutral-100 dark:border-neutral-800">
-          <CardHeader className="border-b border-neutral-100 dark:border-neutral-800 bg-gradient-to-r from-secondary/30 to-secondary/10 dark:from-secondary/10 dark:to-transparent pb-4">
-            <CardTitle className="text-lg font-heading">Expense Breakdown</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <ExpensePieChart transactions={thisMonthTransactions} />
-          </CardContent>
-        </Card>
-      </motion.div>
+      <DashboardCharts 
+        transactions={transactions}
+        thisMonthTransactions={thisMonthTransactions} 
+      />
 
-      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-1">
-          <TransactionForm onAddTransaction={handleAddTransaction} />
-        </div>
-        
-        <div className="md:col-span-2">
-          <Card className="shadow-card border border-neutral-100 dark:border-neutral-800 overflow-hidden">
-            <CardHeader className="flex flex-row items-center justify-between border-b border-neutral-100 dark:border-neutral-800 bg-gradient-to-r from-secondary/30 to-secondary/10 dark:from-secondary/10 dark:to-transparent pb-4">
-              <div>
-                <CardTitle className="text-lg font-heading">Recent Transactions</CardTitle>
-                <CardDescription>Your last 5 transactions</CardDescription>
-              </div>
-              <a href="/transactions" className="text-sm text-primary flex items-center gap-1 hover:underline">
-                View All
-                <ArrowRightIcon className="h-3.5 w-3.5" />
-              </a>
-            </CardHeader>
-            <CardContent className="p-0">
-              <TransactionList 
-                transactions={recentTransactions} 
-                isLoading={isLoading}
-              />
-            </CardContent>
-          </Card>
-        </div>
+      <motion.div variants={{
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0 }
+      }} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <DashboardTransactionForm onAddTransaction={handleAddTransaction} />
+        <DashboardRecentTransactions 
+          transactions={recentTransactions}
+          isLoading={isLoading}
+        />
       </motion.div>
     </motion.div>
   );
