@@ -20,7 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { Transaction, TransactionType } from "@/types";
 import { CategorySelector } from "./transaction-form/category-selector";
-import { PlusCircle, Save, ArrowDown, ArrowUp, X } from "lucide-react";
+import { PlusCircle, Save, X } from "lucide-react";
 
 interface TransactionFormProps {
   onAddTransaction: (transaction: {
@@ -160,13 +160,11 @@ export function TransactionForm({
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="income" className="flex items-center gap-2 text-income">
-                    <ArrowUp className="h-3.5 w-3.5" />
-                    <span>Income</span>
+                  <SelectItem value="income" className="text-income">
+                    Income
                   </SelectItem>
-                  <SelectItem value="expense" className="flex items-center gap-2 text-expense">
-                    <ArrowDown className="h-3.5 w-3.5" />
-                    <span>Expense</span>
+                  <SelectItem value="expense" className="text-expense">
+                    Expense
                   </SelectItem>
                 </SelectContent>
               </Select>
