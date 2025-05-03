@@ -33,7 +33,7 @@ export function TransactionList({
         <div className="rounded-lg overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="bg-secondary/70 hover:bg-secondary/70">
+              <TableRow className="bg-primary/5 hover:bg-primary/5">
                 <TableHead className="font-semibold text-foreground/80">Date</TableHead>
                 <TableHead className="font-semibold text-foreground/80">Description</TableHead>
                 <TableHead className="font-semibold text-foreground/80">Category</TableHead>
@@ -65,7 +65,7 @@ export function TransactionList({
       <div className="rounded-lg overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-secondary/70 hover:bg-secondary/70">
+            <TableRow className="bg-primary/5 hover:bg-primary/5">
               <TableHead className="font-semibold text-foreground/80">Date</TableHead>
               <TableHead className="font-semibold text-foreground/80">Description</TableHead>
               <TableHead className="font-semibold text-foreground/80">Category</TableHead>
@@ -89,7 +89,7 @@ export function TransactionList({
                     </TableCell>
                     <TableCell>
                       <span className={`px-2.5 py-1.5 rounded-full text-xs font-medium ${
-                        isIncome ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400' : 
+                        isIncome ? 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground' : 
                         'bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400'
                       }`}>
                         {transaction.category.replace("_", " ")}
@@ -97,7 +97,7 @@ export function TransactionList({
                     </TableCell>
                     <TableCell 
                       className={`text-right font-semibold text-sm ${
-                        isIncome ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+                        isIncome ? "text-primary dark:text-primary-foreground" : "text-rose-600 dark:text-rose-400"
                       }`}
                     >
                       {isIncome ? "+" : "-"}

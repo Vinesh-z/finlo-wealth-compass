@@ -75,7 +75,7 @@ export function DashboardCards({ transactions, previousMonthData }: DashboardCar
           title="Total Income"
           value={formatCurrency(totalIncome)}
           icon={<ArrowUpRight className="h-5 w-5" />}
-          className="bg-income-light dark:bg-income/10"
+          className="purple-card"
           trend={previousMonthData ? {
             value: incomeTrend,
             isPositive: incomeTrend >= 0
@@ -101,7 +101,7 @@ export function DashboardCards({ transactions, previousMonthData }: DashboardCar
           title="Total Savings"
           value={formatCurrency(savings)}
           icon={<PiggyBank className="h-5 w-5" />}
-          className="bg-primary/10 dark:bg-primary/20"
+          className="purple-card"
           trend={previousMonthData ? {
             value: savingsTrend,
             isPositive: savingsTrend >= 0

@@ -67,7 +67,7 @@ export function TransactionListMobile({
     return (
       <div className="space-y-4">
         {[1, 2, 3, 4].map(i => (
-          <Card key={i} className="bg-neutral-100 dark:bg-zinc-900/50 rounded-xl p-6 animate-pulse h-24" />
+          <Card key={i} className="bg-primary/5 dark:bg-zinc-900/50 rounded-2xl p-6 animate-pulse h-24" />
         ))}
       </div>
     );
@@ -75,7 +75,7 @@ export function TransactionListMobile({
 
   if (groupKeys.length === 0) {
     return (
-      <Card className="rounded-xl p-8 text-center">
+      <Card className="rounded-2xl p-8 text-center">
         <div className="text-center text-muted-foreground py-4 text-lg font-medium">
           No transactions found
         </div>
@@ -104,13 +104,13 @@ export function TransactionListMobile({
                 flex flex-col items-center justify-center
                 p-2 w-14 rounded-xl shadow-sm
                 mr-3 bg-white dark:bg-zinc-800
-                border border-neutral-200 dark:border-zinc-700
+                border border-primary/10 dark:border-zinc-700
               ">
                 <span className="text-xl font-bold text-primary">{dayNum}</span>
                 <span className="text-xs uppercase font-medium text-neutral-500 dark:text-neutral-400 leading-tight">{monthName}</span>
                 <span className={`rounded px-2 py-0.5 text-[11px] font-semibold ${
-                  weekDayName === "Sun" ? "bg-rose-100 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400"
-                  : weekDayName === "Sat" ? "bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+                  weekDayName === "Sun" ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground"
+                  : weekDayName === "Sat" ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground"
                   : "bg-neutral-100 text-neutral-500 dark:bg-zinc-700 dark:text-zinc-300"
                 }`}>
                   {weekDayName}
@@ -120,7 +120,7 @@ export function TransactionListMobile({
               <div className="flex-1">
                 <div className="flex flex-col sm:flex-row sm:gap-4">
                   <div className="flex gap-1 items-center">
-                    <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                    <span className="text-sm font-medium text-primary dark:text-primary-foreground">
                       {income ? "+ " + formatCurrency(income) : "+ ₹0.00"}
                     </span>
                   </div>
@@ -141,12 +141,12 @@ export function TransactionListMobile({
                         flex items-center gap-3 rounded-xl p-4 
                         border border-neutral-200 dark:border-zinc-700 shadow-sm
                         transition-all duration-200 hover:shadow-md
-                        ${tx.type === 'income' ? 'bg-emerald-50/50 dark:bg-emerald-950/10' : 'bg-rose-50/50 dark:bg-rose-950/10'}
+                        ${tx.type === 'income' ? 'bg-primary/5 dark:bg-primary/10' : 'bg-rose-50/50 dark:bg-rose-950/10'}
                       `}
                     >
                       <div className={`
                         flex items-center justify-center w-10 h-10 rounded-full 
-                        ${tx.type === 'income' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 
+                        ${tx.type === 'income' ? 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground' : 
                           'bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400'}
                       `}>
                         <span className="text-lg">{getCategoryIcon(tx.category)}</span>
@@ -161,7 +161,7 @@ export function TransactionListMobile({
                       </div>
                       <div className="flex flex-col items-end min-w-[84px]">
                         {tx.type === "income" ? (
-                          <span className="font-medium text-emerald-600 dark:text-emerald-400">+{formatCurrency(tx.amount)}</span>
+                          <span className="font-medium text-primary dark:text-primary-foreground">+{formatCurrency(tx.amount)}</span>
                         ) : (
                           <span className="font-medium text-rose-600 dark:text-rose-400">-{formatCurrency(tx.amount)}</span>
                         )}

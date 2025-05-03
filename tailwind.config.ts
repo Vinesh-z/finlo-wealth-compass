@@ -63,15 +63,15 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				},
 				income: {
-					DEFAULT: '#6DF002', // New green from palette
-					light: '#E7F8E0',
+					DEFAULT: '#9B87F5', // Updated to purple theme
+					light: '#F1EEFF',
 				},
 				expense: {
-					DEFAULT: '#EA7369', // New coral from palette
+					DEFAULT: '#EA7369', // Kept coral for expenses
 					light: '#FDEEEC',
 				},
 				investment: {
-					DEFAULT: '#19AADE', // New blue from palette
+					DEFAULT: '#19AADE', // Blue from palette
 					light: '#E3F4FB',
 				},
 				neutral: {
@@ -86,8 +86,8 @@ export default {
 						lightest: '#1AC9E6', // Cyan
 					},
 					green: {
-						DEFAULT: '#6DF002', // Mint green
-						light: '#E7F8E0',
+						DEFAULT: '#9B87F5', // Changed to purple
+						light: '#F1EEFF',
 					},
 					coral: {
 						DEFAULT: '#EA7369', // Coral
