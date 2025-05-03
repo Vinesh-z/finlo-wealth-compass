@@ -8,12 +8,16 @@ import { Menu, Home, BarChart2, CreditCard, Calendar, PieChart, Briefcase, Bookm
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import { useTheme } from "@/hooks/use-theme";
 
 export function NavMenu() {
   const location = useLocation();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const { theme } = useTheme();
+  
+  const isDarkMode = theme === "dark";
 
   const routes = [{
     href: "/dashboard",
@@ -72,7 +76,7 @@ export function NavMenu() {
   return <>
     {isMobile ? <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
-          <Button variant="outline" size="icon" className="fixed right-4 top-4 z-40 md:hidden bg-white shadow-md rounded-xl">
+          <Button variant="outline" size="icon" className={`fixed right-4 top-4 z-40 md:hidden ${isDarkMode ? 'bg-background' : 'bg-white'} shadow-md rounded-xl`}>
             <Menu className="h-5 w-5" />
             <span className="sr-only">Toggle Menu</span>
           </Button>
@@ -95,7 +99,7 @@ export function NavMenu() {
             </Button>
           </div>
         </SheetContent>
-      </Sheet> : <div className="fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-md border-r border-border/30 hidden md:block">
+      </Sheet> : <div className={`fixed inset-y-0 left-0 z-40 w-64 ${isDarkMode ? 'bg-background' : 'bg-white'} shadow-md border-r border-border/30 hidden md:block`}>
         <div className="h-20 flex items-center px-8">
           <Link to="/dashboard" className="flex items-center gap-2">
             <span className="font-bold text-lg text-primary">Zynfi</span>
