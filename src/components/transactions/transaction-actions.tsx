@@ -1,33 +1,58 @@
 
 import React from "react";
-import { TransactionForm } from "@/components/transaction-form";
-import { Transaction } from "@/types";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface TransactionActionsProps {
-  onAddTransaction: (transaction: {
-    amount: number;
-    type: Transaction['type'];
-    category: Transaction['category'];
-    description: string;
-    date: Date;
-  }) => Promise<void>;
-  editingTransaction: Transaction | null;
-  onEditTransaction: (transaction: Transaction) => Promise<void>;
-  onCancelEdit: () => void;
+  onFilterChange: (value: string) => void;
+  onSortChange: (value: string) => void;
+  onSearchChange: (value: string) => void;
+  filter: string;
+  sortBy: string;
+  searchQuery: string;
 }
 
 export function TransactionActions({ 
-  onAddTransaction, 
-  editingTransaction,
-  onEditTransaction,
-  onCancelEdit
+  onFilterChange,
+  onSortChange,
+  onSearchChange,
+  filter,
+  sortBy,
+  searchQuery
 }: TransactionActionsProps) {
   return (
-    <TransactionForm 
-      onAddTransaction={onAddTransaction} 
-      editingTransaction={editingTransaction}
-      onEditTransaction={onEditTransaction}
-      onCancelEdit={onCancelEdit}
-    />
+    <div className="flex flex-col md:flex-row items-center gap-4">
+      <div className="w-full md:w-1/3">
+        <Input
+          placeholder="Search transactions..."
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="w-full"
+        />
+      </div>
+      <div className="w-full md:w-1/3">
+        <Select value={filter} onValueChange={onFilterChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Filter by type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All transactions</SelectItem>
+            <SelectItem value="income">Income only</SelectItem>
+            <SelectItem value="expense">Expenses only</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="w-full md:w-1/3">
+        <Select value={sortBy} onValueChange={onSortChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="date">Sort by date</SelectItem>
+            <SelectItem value="amount">Sort by amount</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
   );
 }
