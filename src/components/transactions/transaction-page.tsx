@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { TransactionHeader } from "./transaction-header";
@@ -8,7 +7,6 @@ import { TransactionListMobile } from "@/components/transaction-list-mobile";
 import { TransactionForm } from "@/components/transaction-form";
 import { toast } from "@/components/ui/use-toast";
 import { Transaction, TransactionType } from "@/types";
-import { v4 as uuidv4 } from "uuid";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Dialog,
@@ -99,7 +97,7 @@ export function TransactionPage() {
   }) => {
     const newTransaction = {
       ...transaction,
-      id: uuidv4(),
+      id: crypto.randomUUID(), // Using built-in UUID generation instead of uuid package
     };
     
     setTransactions(prev => [...prev, newTransaction]);
