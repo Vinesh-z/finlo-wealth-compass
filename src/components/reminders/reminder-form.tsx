@@ -21,7 +21,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
-import { CalendarIcon, Clock } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Reminder } from "@/types";
@@ -123,12 +123,12 @@ export function ReminderForm({ onAddReminder }: ReminderFormProps) {
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-row gap-4">
               <FormField
                 control={form.control}
                 name="reminderDate"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
+                  <FormItem className="flex-1">
                     <FormLabel>Date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
@@ -155,6 +155,7 @@ export function ReminderForm({ onAddReminder }: ReminderFormProps) {
                           selected={field.value}
                           onSelect={field.onChange}
                           initialFocus
+                          className="pointer-events-auto"
                         />
                       </PopoverContent>
                     </Popover>
@@ -167,17 +168,13 @@ export function ReminderForm({ onAddReminder }: ReminderFormProps) {
                 control={form.control}
                 name="reminderTime"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex-1">
                     <FormLabel>Time</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Input 
-                          type="time" 
-                          {...field} 
-                          className="pr-8" 
-                        />
-                        <Clock className="absolute right-3 top-2.5 h-4 w-4 opacity-50 pointer-events-none" />
-                      </div>
+                      <Input 
+                        type="time" 
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
