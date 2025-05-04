@@ -123,7 +123,7 @@ export function ReminderForm({ onAddReminder }: ReminderFormProps) {
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="reminderDate"
@@ -169,12 +169,16 @@ export function ReminderForm({ onAddReminder }: ReminderFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Time</FormLabel>
-                    <div className="relative">
-                      <FormControl>
-                        <Input type="time" {...field} />
-                      </FormControl>
-                      <Clock className="absolute right-3 top-2.5 h-4 w-4 opacity-50" />
-                    </div>
+                    <FormControl>
+                      <div className="relative">
+                        <Input 
+                          type="time" 
+                          {...field} 
+                          className="pr-8" 
+                        />
+                        <Clock className="absolute right-3 top-2.5 h-4 w-4 opacity-50 pointer-events-none" />
+                      </div>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
