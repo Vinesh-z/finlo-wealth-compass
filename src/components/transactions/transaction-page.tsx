@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { TransactionHeader } from "./transaction-header";
@@ -9,10 +8,10 @@ import { TransactionForm } from "@/components/transaction-form";
 import { toast } from "@/components/ui/use-toast";
 import { Transaction, TransactionType } from "@/types";
 import { v4 as uuidv4 } from "uuid";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function TransactionPage() {
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const [transactions, setTransactions] = useState<Transaction[]>([
     {
       id: "1",
