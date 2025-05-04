@@ -1,11 +1,18 @@
+
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { TransactionHeader } from "./transaction-header";
 import { TransactionActions } from "./transaction-actions";
+import { TransactionList } from "@/components/transaction-list";
+import { TransactionListMobile } from "@/components/transaction-list-mobile";
+import { TransactionForm } from "@/components/transaction-form";
 import { toast } from "@/components/ui/use-toast";
 import { Transaction, TransactionType } from "@/types";
+import { v4 as uuidv4 } from "uuid";
+import { useMobile } from "@/hooks/use-mobile";
 
 export function TransactionPage() {
+  const isMobile = useMobile();
   const [transactions, setTransactions] = useState<Transaction[]>([
     {
       id: "1",
@@ -36,6 +43,7 @@ export function TransactionPage() {
   const [filter, setFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("date");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
 
   // Filter transactions
   const filteredTransactions = transactions.filter(transaction => {
@@ -45,7 +53,7 @@ export function TransactionPage() {
     }
 
     // Search by description or category
-    if (searchQuery && !transaction.description.toLowerCase().includes(searchQuery.toLowerCase()) && 
+    if (searchQuery && !transaction.description?.toLowerCase().includes(searchQuery.toLowerCase()) && 
         !transaction.category.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
     }
@@ -71,11 +79,32 @@ export function TransactionPage() {
     });
   };
 
-  const handleAddTransaction = (transaction: Transaction) => {
-    setTransactions(prev => [...prev, transaction]);
+  const handleAddTransaction = (transaction: {
+    amount: number;
+    type: TransactionType;
+    category: string;
+    description: string;
+    date: Date;
+    is_custom_category: boolean;
+  }) => {
+    const newTransaction = {
+      ...transaction,
+      id: uuidv4(),
+    };
+    
+    setTransactions(prev => [...prev, newTransaction]);
     toast({
       title: "Transaction added",
       description: "The transaction has been successfully added."
+    });
+  };
+
+  const handleEditTransaction = (transaction: Transaction) => {
+    setTransactions(prev => prev.map(t => t.id === transaction.id ? transaction : t));
+    setEditingTransaction(null);
+    toast({
+      title: "Transaction updated",
+      description: "The transaction has been successfully updated."
     });
   };
 
@@ -94,16 +123,48 @@ export function TransactionPage() {
   return (
     <div className="container mx-auto p-4">
       <TransactionHeader />
-      <TransactionActions 
-        onFilterChange={handleFilterChange}
-        onSortChange={handleSortChange}
-        onSearchChange={handleSearchChange}
-        filter={filter}
-        sortBy={sortBy}
-        searchQuery={searchQuery}
-      />
-      <div className="mt-8">
-        {/* Transaction list would go here */}
+      
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <TransactionActions 
+            onFilterChange={handleFilterChange}
+            onSortChange={handleSortChange}
+            onSearchChange={handleSearchChange}
+            filter={filter}
+            sortBy={sortBy}
+            searchQuery={searchQuery}
+          />
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mt-6"
+          >
+            {isMobile ? (
+              <TransactionListMobile
+                transactions={sortedTransactions}
+                onEdit={(transaction) => setEditingTransaction(transaction)}
+                onDelete={handleDeleteTransaction}
+              />
+            ) : (
+              <TransactionList
+                transactions={sortedTransactions}
+                onEdit={(transaction) => setEditingTransaction(transaction)}
+                onDelete={handleDeleteTransaction}
+              />
+            )}
+          </motion.div>
+        </div>
+        
+        <div>
+          <TransactionForm
+            onAddTransaction={handleAddTransaction}
+            editingTransaction={editingTransaction}
+            onEditTransaction={handleEditTransaction}
+            onCancelEdit={() => setEditingTransaction(null)}
+          />
+        </div>
       </div>
     </div>
   );
