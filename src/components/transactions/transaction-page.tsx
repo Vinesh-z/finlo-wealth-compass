@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { TransactionHeader } from "./transaction-header";
@@ -9,6 +10,15 @@ import { toast } from "@/components/ui/use-toast";
 import { Transaction, TransactionType } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 export function TransactionPage() {
   const isMobile = useIsMobile();
@@ -43,6 +53,7 @@ export function TransactionPage() {
   const [sortBy, setSortBy] = useState<string>("date");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   // Filter transactions
   const filteredTransactions = transactions.filter(transaction => {
@@ -92,6 +103,7 @@ export function TransactionPage() {
     };
     
     setTransactions(prev => [...prev, newTransaction]);
+    setIsFormOpen(false);
     toast({
       title: "Transaction added",
       description: "The transaction has been successfully added."
@@ -101,6 +113,7 @@ export function TransactionPage() {
   const handleEditTransaction = (transaction: Transaction) => {
     setTransactions(prev => prev.map(t => t.id === transaction.id ? transaction : t));
     setEditingTransaction(null);
+    setIsFormOpen(false);
     toast({
       title: "Transaction updated",
       description: "The transaction has been successfully updated."
@@ -118,53 +131,91 @@ export function TransactionPage() {
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
   };
+  
+  const handleEditButtonClick = (transaction: Transaction) => {
+    setEditingTransaction(transaction);
+    setIsFormOpen(true);
+  };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 pb-20">
       <TransactionHeader />
       
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <TransactionActions 
-            onFilterChange={handleFilterChange}
-            onSortChange={handleSortChange}
-            onSearchChange={handleSearchChange}
-            filter={filter}
-            sortBy={sortBy}
-            searchQuery={searchQuery}
-          />
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mt-6"
-          >
-            {isMobile ? (
-              <TransactionListMobile
-                transactions={sortedTransactions}
-                onEdit={(transaction) => setEditingTransaction(transaction)}
-                onDelete={handleDeleteTransaction}
-              />
-            ) : (
-              <TransactionList
-                transactions={sortedTransactions}
-                onEdit={(transaction) => setEditingTransaction(transaction)}
-                onDelete={handleDeleteTransaction}
-              />
-            )}
-          </motion.div>
-        </div>
+      <div className="mt-8">
+        <TransactionActions 
+          onFilterChange={handleFilterChange}
+          onSortChange={handleSortChange}
+          onSearchChange={handleSearchChange}
+          filter={filter}
+          sortBy={sortBy}
+          searchQuery={searchQuery}
+        />
         
-        <div>
-          <TransactionForm
-            onAddTransaction={handleAddTransaction}
-            editingTransaction={editingTransaction}
-            onEditTransaction={handleEditTransaction}
-            onCancelEdit={() => setEditingTransaction(null)}
-          />
-        </div>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mt-6 pb-16"
+        >
+          {isMobile ? (
+            <TransactionListMobile
+              transactions={sortedTransactions}
+              onEdit={handleEditButtonClick}
+              onDelete={handleDeleteTransaction}
+            />
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <TransactionList
+                  transactions={sortedTransactions}
+                  onEdit={handleEditButtonClick}
+                  onDelete={handleDeleteTransaction}
+                />
+              </div>
+              <div>
+                <TransactionForm
+                  onAddTransaction={handleAddTransaction}
+                  editingTransaction={editingTransaction}
+                  onEditTransaction={handleEditTransaction}
+                  onCancelEdit={() => setEditingTransaction(null)}
+                />
+              </div>
+            </div>
+          )}
+        </motion.div>
       </div>
+      
+      {/* Mobile-only floating action button and transaction form dialog */}
+      {isMobile && (
+        <>
+          <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+            <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>
+                  {editingTransaction ? "Edit Transaction" : "Add Transaction"}
+                </DialogTitle>
+              </DialogHeader>
+              <TransactionForm
+                onAddTransaction={handleAddTransaction}
+                editingTransaction={editingTransaction}
+                onEditTransaction={handleEditTransaction}
+                onCancelEdit={() => {
+                  setEditingTransaction(null);
+                  setIsFormOpen(false);
+                }}
+              />
+            </DialogContent>
+            <DialogTrigger asChild>
+              <Button 
+                className="fixed bottom-4 right-4 w-14 h-14 rounded-full shadow-lg"
+                size="icon"
+              >
+                <Plus className="h-6 w-6" />
+              </Button>
+            </DialogTrigger>
+          </Dialog>
+        </>
+      )}
     </div>
   );
 }
